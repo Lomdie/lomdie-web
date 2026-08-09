@@ -39,8 +39,10 @@ export async function updateSession(request: NextRequest, isAdminHost = false) {
 
   const isAdminRoute = rawPathname.startsWith("/admin");
   const isLoginRoute = rawPathname === "/admin/login";
+  const isPublicAuthRoute =
+    isLoginRoute || rawPathname === "/admin/mot-de-passe-oublie";
 
-  if (isAdminRoute && !isLoginRoute && !user) {
+  if (isAdminRoute && !isPublicAuthRoute && !user) {
     const loginUrl = new URL("/admin/login", request.url);
     return NextResponse.redirect(loginUrl);
   }

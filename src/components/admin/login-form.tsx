@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -28,7 +29,15 @@ export function LoginForm() {
           <Input id="email" name="email" type="email" required autoComplete="email" />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="password">Mot de passe</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="password">Mot de passe</Label>
+            <Link
+              href="/admin/mot-de-passe-oublie"
+              className="text-xs font-medium text-primary hover:underline"
+            >
+              Mot de passe oublié ?
+            </Link>
+          </div>
           <Input
             id="password"
             name="password"
