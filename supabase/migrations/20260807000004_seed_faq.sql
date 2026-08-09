@@ -1,0 +1,23 @@
+insert into faq_items (question, answer, sort_order) values
+  ('Comment fonctionne Lomdie ?',
+   'Vous déposez une candidature en ligne. Après validation de votre profil, nous vous appelons en visio pour comprendre vos attentes, puis nous vous présentons des profils sélectionnés avec soin selon vos critères de compatibilité.',
+   1),
+  ('Les profils sont-ils vraiment vérifiés ?',
+   'Oui. Chaque profil passe par un entretien personnalisé avant d''intégrer notre réseau. Nous vérifions la cohérence des informations partagées avant toute mise en relation.',
+   2),
+  ('Puis-je rencontrer plusieurs personnes en même temps ?',
+   'Nous vous présentons entre un et trois profils à la fois pour garder une démarche qualitative plutôt que de multiplier les mises en relation.',
+   3),
+  ('Combien de temps faut-il pour une mise en relation ?',
+   'Le délai dépend de la disponibilité de profils compatibles avec vos critères. Notre priorité reste la qualité de la compatibilité plutôt que la rapidité.',
+   4),
+  ('La confidentialité est-elle garantie ?',
+   'Oui. Vos informations ne sont jamais partagées sans votre accord, et aucune photo de profil n''apparaît publiquement sur le site.',
+   5),
+  ('Quels sont les critères pour rejoindre Lomdie ?',
+   'Être célibataire, sérieux dans votre démarche, et à la recherche d''une relation durable. Un entretien vidéo permet de mieux cerner vos attentes.',
+   6),
+  ('Comment se déroule le paiement ?',
+   'Le paiement intervient après validation de votre candidature, une fois la formule choisie, via un moyen de paiement sécurisé.',
+   7)
+on conflict do nothing;

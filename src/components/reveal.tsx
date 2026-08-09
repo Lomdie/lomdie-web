@@ -1,0 +1,48 @@
+"use client";
+
+import { motion } from "motion/react";
+import type { ReactNode } from "react";
+
+interface RevealProps {
+  children: ReactNode;
+  delay?: number;
+  className?: string;
+}
+
+export function Reveal({ children, delay = 0, className }: RevealProps) {
+  return (
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+interface RevealGroupProps {
+  children: ReactNode[];
+  className?: string;
+  itemClassName?: string;
+  stagger?: number;
+}
+
+export function RevealGroup({
+  children,
+  className,
+  itemClassName,
+  stagger = 0.1,
+}: RevealGroupProps) {
+  return (
+    <div className={className}>
+      {children.map((child, index) => (
+        <Reveal key={index} delay={index * stagger} className={itemClassName}>
+          {child}
+        </Reveal>
+      ))}
+    </div>
+  );
+}

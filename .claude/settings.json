@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "deny": [
+      "mcp__azure",
+      "mcp__maestro",
+      "mcp__stripe",
+      "mcp__MCP_DOCKER",
+      "mcp__shopify-dev-mcp",
+      "mcp__shopify-admin"
+    ]
+  }
+}
