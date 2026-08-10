@@ -13,8 +13,11 @@ export function AdminSidebar({ userEmail }: { userEmail: string }) {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    setCollapsed(localStorage.getItem(STORAGE_KEY) === "1");
-    setHydrated(true);
+    const frame = requestAnimationFrame(() => {
+      setCollapsed(localStorage.getItem(STORAGE_KEY) === "1");
+      setHydrated(true);
+    });
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   function toggle() {

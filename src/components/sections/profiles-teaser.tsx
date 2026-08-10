@@ -41,7 +41,7 @@ export async function ProfilesTeaser() {
         <div className="mt-10">
           <Carousel itemClassName="w-full" autoplayMs={5000}>
             {profiles.map((profile) => (
-              <div key={profile.id} className="mx-auto flex max-w-xs justify-center">
+              <div key={profile.id} className="mx-auto flex w-full max-w-xs justify-center">
                 <ProfileCard profile={profile} />
               </div>
             ))}

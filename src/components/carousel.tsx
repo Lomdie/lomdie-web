@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, type ReactNode } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -18,7 +18,7 @@ export function Carousel({
 }) {
   const scrollerRef = useRef<HTMLDivElement>(null);
 
-  function scroll(direction: 1 | -1) {
+  const scroll = useCallback((direction: 1 | -1) => {
     const el = scrollerRef.current;
     if (!el) return;
     const card = el.firstElementChild as HTMLElement | null;
@@ -30,13 +30,13 @@ export function Carousel({
       return;
     }
     el.scrollBy({ left: direction * step, behavior: "smooth" });
-  }
+  }, [scrollByPage]);
 
   useEffect(() => {
     if (!autoplayMs) return;
     const id = setInterval(() => scroll(1), autoplayMs);
     return () => clearInterval(id);
-  }, [autoplayMs]);
+  }, [autoplayMs, scroll]);
 
   return (
     <div className="relative">

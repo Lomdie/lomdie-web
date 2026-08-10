@@ -19,7 +19,7 @@ export function ProfileCard({ profile }: { profile: PublicProfile }) {
   const genderLabel = profile.gender === "femme" ? "Femme" : "Homme";
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm transition-shadow hover:shadow-md">
+    <div className="w-full overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm transition-shadow hover:shadow-md">
       <div className="relative aspect-4/5 overflow-hidden bg-secondary">
         <Image
           src={sentinelByGender[profile.gender]}
@@ -30,7 +30,7 @@ export function ProfileCard({ profile }: { profile: PublicProfile }) {
         />
       </div>
 
-      <div className="p-5 text-center">
+      <div className="flex min-h-40 flex-col p-5 text-center">
         <h3 className="font-display text-lg">
           {genderLabel}
           {profile.age ? ` · ${profile.age} ans` : ""}
@@ -42,7 +42,7 @@ export function ProfileCard({ profile }: { profile: PublicProfile }) {
           render={<Link href="/candidature" />}
           variant="outline"
           size="sm"
-          className="mt-4 w-full"
+          className="mt-auto w-full"
         >
           Voir le profil
         </Button>

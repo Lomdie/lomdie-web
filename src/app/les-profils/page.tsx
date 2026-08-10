@@ -61,7 +61,7 @@ export default async function LesProfilsPage() {
                 </p>
                 <p className="mt-2 text-sm text-muted-foreground">
                   Faites votre candidature pour être mis en relation dès
-                  qu'un profil compatible avec vos critères rejoint notre
+                  qu&apos;un profil compatible avec vos critères rejoint notre
                   réseau.
                 </p>
               </div>
