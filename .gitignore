@@ -36,6 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# temporary migration secrets
+scripts/.airtable-token
+
 # playwright mcp session data
 .playwright-mcp/
 
