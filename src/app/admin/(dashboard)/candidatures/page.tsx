@@ -312,6 +312,7 @@ export default async function AdminCandidaturesPage({
                   <TableCell className="sticky left-0 z-10 bg-card">
                     <Link
                       href={`/admin/candidatures/${candidate.id}`}
+                      prefetch={false}
                       className="font-medium hover:text-primary"
                     >
                       {candidate.first_name} {candidate.last_name}
