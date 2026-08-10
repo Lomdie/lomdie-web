@@ -11,7 +11,7 @@ export function SiteLogo({ className }: { className?: string }) {
         width={1498}
         height={450}
         priority
-        className="h-auto w-44 sm:w-52"
+        className="h-auto w-[10.5rem] sm:w-[12.5rem]"
       />
     </Link>
   );

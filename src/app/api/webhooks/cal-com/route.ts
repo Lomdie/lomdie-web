@@ -13,6 +13,8 @@ type CalPayload = {
   uid?: string;
   bookingUid?: string;
   title?: string;
+  type?: string;
+  eventTypeId?: number;
   startTime?: string;
   endTime?: string;
   meetingUrl?: string;
@@ -41,6 +43,13 @@ function bookingStatus(trigger: string) {
   if (trigger.includes("CANCELLED") || trigger.includes("REJECTED")) return "cancelled";
   if (trigger.includes("COMPLETED") || trigger === "MEETING_ENDED") return "completed";
   return "confirmed";
+}
+
+function bookingType(payload: CalPayload) {
+  const descriptor = `${payload.type ?? ""} ${payload.title ?? ""}`.toLocaleLowerCase("fr-FR");
+  return descriptor.includes("paiement") || descriptor.includes("payment")
+    ? "post_payment"
+    : "discovery";
 }
 
 export async function POST(request: Request) {
@@ -85,6 +94,9 @@ export async function POST(request: Request) {
       external_uid: externalUid,
       candidate_id: candidateId,
       title: payload.title ?? null,
+      booking_type: bookingType(payload),
+      event_type_id: payload.eventTypeId ?? null,
+      event_type_slug: payload.type ?? null,
       attendee_name: attendee?.name ?? null,
       attendee_email: attendee?.email ?? null,
       attendee_phone: attendee?.phoneNumber ?? attendee?.phone ?? null,
@@ -107,4 +119,3 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ received: true });
 }
-
