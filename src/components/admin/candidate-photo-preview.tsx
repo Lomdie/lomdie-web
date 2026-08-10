@@ -16,7 +16,7 @@ export function CandidatePhotoPreview({
   urls: string[];
   candidateName: string;
 }) {
-  if (urls.length === 0) return <span className="text-muted-foreground">—</span>;
+  if (urls.length === 0) return null;
 
   return (
     <div className="flex min-w-24 gap-1.5">

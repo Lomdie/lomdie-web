@@ -65,6 +65,7 @@ interface CandidateRow {
 }
 
 interface SearchParams {
+  page?: string;
   q?: string;
   status?: string;
   gender?: string;
@@ -82,6 +83,31 @@ interface SearchParams {
   maxChildren?: string;
   photos?: string;
   offer?: string;
+}
+
+const PAGE_SIZE = 20;
+const TECHNICAL_EMPTY_VALUES = new Set([
+  "non renseigne",
+  "non renseigné",
+  "non renseignee",
+  "non renseignée",
+  "non renseigne(e)",
+  "non renseigné(e)",
+]);
+
+function displayValue(value: string | null | undefined) {
+  const trimmed = value?.trim();
+  if (!trimmed || TECHNICAL_EMPTY_VALUES.has(trimmed.toLocaleLowerCase("fr-FR"))) {
+    return null;
+  }
+  return trimmed;
+}
+
+function displayEmail(value: string | null | undefined) {
+  const email = displayValue(value);
+  return email && !email.toLowerCase().endsWith("@lomdie-sans-email.invalid")
+    ? email
+    : null;
 }
 
 function yearsAgo(years: number) {
@@ -103,12 +129,13 @@ function calculateAge(birthDate: string) {
   return age;
 }
 
-async function getCandidates(filters: SearchParams): Promise<CandidateRow[]> {
+async function getCandidates(filters: SearchParams, page: number) {
   const supabase = await createAuthedServerClient();
   let query = supabase
     .from("candidates")
     .select(
-      "id, first_name, last_name, email, phone, gender, birth_date, country, city, years_in_country, marital_status, children_count, tribe, religion, sensitive_data_consent, height_cm, occupation, single_duration, hobbies, personality, photo_urls, search_age_range, search_marital_status, search_max_children, search_height_range, search_tribe, search_religion, search_body_type, search_qualities, status, offer_tier, is_publicly_listed, motivation, admin_notes, created_at"
+      "id, first_name, last_name, email, phone, gender, birth_date, country, city, years_in_country, marital_status, children_count, tribe, religion, sensitive_data_consent, height_cm, occupation, single_duration, hobbies, personality, photo_urls, search_age_range, search_marital_status, search_max_children, search_height_range, search_tribe, search_religion, search_body_type, search_qualities, status, offer_tier, is_publicly_listed, motivation, admin_notes, created_at",
+      { count: "exact" }
     )
     .order("created_at", { ascending: false });
 
@@ -162,7 +189,8 @@ async function getCandidates(filters: SearchParams): Promise<CandidateRow[]> {
     );
   }
 
-  const { data } = await query;
+  const from = (page - 1) * PAGE_SIZE;
+  const { data, count } = await query.range(from, from + PAGE_SIZE - 1);
   const candidates = data ?? [];
   const paths = candidates.flatMap((candidate) => candidate.photo_urls ?? []);
   const urlByPath = new Map<string, string>();
@@ -177,12 +205,15 @@ async function getCandidates(filters: SearchParams): Promise<CandidateRow[]> {
     });
   }
 
-  return candidates.map((candidate) => ({
-    ...candidate,
-    resolvedPhotoUrls: (candidate.photo_urls ?? [])
-      .map((path: string) => urlByPath.get(path))
-      .filter((url: string | undefined): url is string => Boolean(url)),
-  }));
+  return {
+    candidates: candidates.map((candidate) => ({
+      ...candidate,
+      resolvedPhotoUrls: (candidate.photo_urls ?? [])
+        .map((path: string) => urlByPath.get(path))
+        .filter((url: string | undefined): url is string => Boolean(url)),
+    })) as CandidateRow[],
+    total: count ?? 0,
+  };
 }
 
 export default async function AdminCandidaturesPage({
@@ -191,7 +222,10 @@ export default async function AdminCandidaturesPage({
   searchParams: Promise<SearchParams>;
 }) {
   const filters = await searchParams;
-  const candidates = await getCandidates(filters);
+  const requestedPage = Number.parseInt(filters.page ?? "1", 10);
+  const page = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+  const { candidates, total } = await getCandidates(filters, page);
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const hasActiveFilters = Boolean(
     Object.values(filters).some(Boolean)
   );
@@ -204,7 +238,7 @@ export default async function AdminCandidaturesPage({
           <HelpTooltip text="Chaque candidature reçue via le formulaire du site apparaît ici. Cliquez sur un nom pour voir le détail complet, changer son statut, ajouter des notes internes ou décider si son profil apparaît (anonymisé) sur la page « Les profils » du site public. Utilisez les filtres pour retrouver rapidement un profil. Deux liens à envoyer vous-même (ci-dessous, non accessibles depuis le site public) : le dossier détaillé une fois le candidat qualifié, et le lien de prise de rendez-vous une fois son paiement confirmé." />
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {candidates.length} dossier{candidates.length > 1 ? "s" : ""} dans la base.
+          {total} dossier{total > 1 ? "s" : ""} dans la base.
           Cliquez sur un nom pour consulter toutes les informations importées.
         </p>
       </div>
@@ -290,38 +324,38 @@ export default async function AdminCandidaturesPage({
                     />
                   </TableCell>
                   <TableCell className="max-w-35 text-muted-foreground sm:max-w-none">
-                    <div className="truncate">{candidate.email}</div>
-                    <div className="hidden sm:block">{candidate.phone}</div>
+                    <div className="truncate">{displayEmail(candidate.email)}</div>
+                    <div className="hidden sm:block">{displayValue(candidate.phone)}</div>
                   </TableCell>
                   <TableCell className="capitalize text-muted-foreground">
-                    {candidate.gender}
+                    {displayValue(candidate.gender)}
                   </TableCell>
-                  <TableCell>{candidate.birth_date ? calculateAge(candidate.birth_date) : "—"}</TableCell>
-                  <TableCell>{candidate.city || "—"}</TableCell>
-                  <TableCell>{candidate.country || "—"}</TableCell>
-                  <TableCell className="max-w-48 truncate">{candidate.occupation || "—"}</TableCell>
-                  <TableCell>{candidate.marital_status ? maritalStatusLabels[candidate.marital_status] ?? candidate.marital_status : "—"}</TableCell>
-                  <TableCell>{candidate.children_count ?? "—"}</TableCell>
-                  <TableCell>{candidate.tribe || "—"}</TableCell>
-                  <TableCell>{candidate.religion || "—"}</TableCell>
-                  <TableCell>{candidate.height_cm ? `${candidate.height_cm} cm` : "—"}</TableCell>
-                  <TableCell>{candidate.single_duration || "—"}</TableCell>
-                  <TableCell>{candidate.years_in_country != null ? `${candidate.years_in_country} ans` : "—"}</TableCell>
-                  <TableCell className="max-w-56 truncate" title={candidate.hobbies ?? undefined}>{candidate.hobbies || "—"}</TableCell>
-                  <TableCell className="max-w-56 truncate" title={candidate.personality ?? undefined}>{candidate.personality || "—"}</TableCell>
-                  <TableCell>{candidate.search_age_range || "—"}</TableCell>
-                  <TableCell>{candidate.search_marital_status?.map((value) => maritalStatusLabels[value] ?? value).join(", ") || "—"}</TableCell>
-                  <TableCell>{candidate.search_max_children ?? "—"}</TableCell>
-                  <TableCell>{candidate.search_height_range || "—"}</TableCell>
-                  <TableCell>{candidate.search_tribe || "—"}</TableCell>
-                  <TableCell>{candidate.search_religion || "—"}</TableCell>
-                  <TableCell>{candidate.search_body_type || "—"}</TableCell>
-                  <TableCell className="max-w-56 truncate" title={candidate.search_qualities ?? undefined}>{candidate.search_qualities || "—"}</TableCell>
-                  <TableCell className="capitalize">{candidate.offer_tier || "—"}</TableCell>
+                  <TableCell>{candidate.birth_date ? calculateAge(candidate.birth_date) : null}</TableCell>
+                  <TableCell>{displayValue(candidate.city)}</TableCell>
+                  <TableCell>{displayValue(candidate.country)}</TableCell>
+                  <TableCell className="max-w-48 truncate">{displayValue(candidate.occupation)}</TableCell>
+                  <TableCell>{candidate.marital_status ? maritalStatusLabels[candidate.marital_status] ?? candidate.marital_status : null}</TableCell>
+                  <TableCell>{candidate.children_count ?? null}</TableCell>
+                  <TableCell>{displayValue(candidate.tribe)}</TableCell>
+                  <TableCell>{displayValue(candidate.religion)}</TableCell>
+                  <TableCell>{candidate.height_cm ? `${candidate.height_cm} cm` : null}</TableCell>
+                  <TableCell>{displayValue(candidate.single_duration)}</TableCell>
+                  <TableCell>{candidate.years_in_country != null ? `${candidate.years_in_country} ans` : null}</TableCell>
+                  <TableCell className="max-w-56 truncate" title={displayValue(candidate.hobbies) ?? undefined}>{displayValue(candidate.hobbies)}</TableCell>
+                  <TableCell className="max-w-56 truncate" title={displayValue(candidate.personality) ?? undefined}>{displayValue(candidate.personality)}</TableCell>
+                  <TableCell>{displayValue(candidate.search_age_range)}</TableCell>
+                  <TableCell>{candidate.search_marital_status?.map((value) => maritalStatusLabels[value] ?? value).join(", ") || null}</TableCell>
+                  <TableCell>{candidate.search_max_children ?? null}</TableCell>
+                  <TableCell>{displayValue(candidate.search_height_range)}</TableCell>
+                  <TableCell>{displayValue(candidate.search_tribe)}</TableCell>
+                  <TableCell>{displayValue(candidate.search_religion)}</TableCell>
+                  <TableCell>{displayValue(candidate.search_body_type)}</TableCell>
+                  <TableCell className="max-w-56 truncate" title={displayValue(candidate.search_qualities) ?? undefined}>{displayValue(candidate.search_qualities)}</TableCell>
+                  <TableCell className="capitalize">{displayValue(candidate.offer_tier)}</TableCell>
                   <TableCell>{candidate.is_publicly_listed ? "Oui" : "Non"}</TableCell>
                   <TableCell>{candidate.sensitive_data_consent ? "Oui" : "Non"}</TableCell>
-                  <TableCell className="max-w-56 truncate" title={candidate.motivation ?? undefined}>{candidate.motivation || "—"}</TableCell>
-                  <TableCell className="max-w-56 truncate" title={candidate.admin_notes ?? undefined}>{candidate.admin_notes || "—"}</TableCell>
+                  <TableCell className="max-w-56 truncate" title={displayValue(candidate.motivation) ?? undefined}>{displayValue(candidate.motivation)}</TableCell>
+                  <TableCell className="max-w-56 truncate" title={displayValue(candidate.admin_notes) ?? undefined}>{displayValue(candidate.admin_notes)}</TableCell>
                   <TableCell>
                     <Badge variant="secondary">
                       {candidateStatusLabels[candidate.status]}
@@ -336,6 +370,32 @@ export default async function AdminCandidaturesPage({
           </Table>
         </div>
       )}
+
+      {total > PAGE_SIZE ? (
+        <nav className="flex items-center justify-between gap-4" aria-label="Pagination des candidatures">
+          <p className="text-sm text-muted-foreground">
+            Page {Math.min(page, pageCount)} sur {pageCount}
+          </p>
+          <div className="flex gap-2">
+            {page > 1 ? (
+              <Link
+                href={{ pathname: "/admin/candidatures", query: { ...filters, page: page - 1 } }}
+                className="rounded-lg border border-border px-4 py-2 text-sm hover:bg-secondary"
+              >
+                Précédente
+              </Link>
+            ) : null}
+            {page < pageCount ? (
+              <Link
+                href={{ pathname: "/admin/candidatures", query: { ...filters, page: page + 1 } }}
+                className="rounded-lg border border-border px-4 py-2 text-sm hover:bg-secondary"
+              >
+                Suivante
+              </Link>
+            ) : null}
+          </div>
+        </nav>
+      ) : null}
     </div>
   );
 }
