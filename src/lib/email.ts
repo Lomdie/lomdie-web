@@ -7,6 +7,15 @@ const FROM = "Lomdie <no-reply@lomdie.com>";
 const REPLY_TO = "contact@lomdie.com";
 const PRIMARY_COLOR = "#bf7b1f";
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function emailLayout(title: string, bodyHtml: string): string {
   return `<!DOCTYPE html>
 <html lang="fr">
@@ -62,7 +71,7 @@ export async function sendContactConfirmationEmail(to: string, name: string) {
   await sendEmail(
     to,
     "Nous avons bien reçu votre message",
-    `Merci ${name} !`,
+    `Merci ${escapeHtml(name)} !`,
     `<p>Nous avons bien reçu votre message et notre équipe vous répondra dans les meilleurs délais.</p>
      <p>À très vite,<br />L'équipe Lomdie</p>`
   );
@@ -72,7 +81,7 @@ export async function sendCandidatureConfirmationEmail(to: string, firstName: st
   await sendEmail(
     to,
     "Votre candidature Lomdie a bien été reçue",
-    `Merci ${firstName} !`,
+    `Merci ${escapeHtml(firstName)} !`,
     `<p>Votre candidature a bien été reçue. Notre équipe l'examine avec attention et vous recontactera prochainement pour la suite du processus.</p>
      <p>À très vite,<br />L'équipe Lomdie</p>`
   );
@@ -82,7 +91,7 @@ export async function sendDossierConfirmationEmail(to: string, firstName: string
   await sendEmail(
     to,
     "Votre dossier Lomdie a bien été reçu",
-    `Merci ${firstName} !`,
+    `Merci ${escapeHtml(firstName)} !`,
     `<p>Votre dossier de candidature complet a bien été reçu, photos incluses. Charlène l'examine personnellement et revient vers vous rapidement.</p>
      <p>À très vite,<br />L'équipe Lomdie</p>`
   );
