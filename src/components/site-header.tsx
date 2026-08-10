@@ -19,6 +19,7 @@ const navLinks = [
   { href: "/nos-offres", label: "Nos offres" },
   { href: "/notre-methode", label: "Comment ça marche" },
   { href: "/temoignages", label: "Témoignages" },
+  { href: "/blog", label: "Blog" },
   { href: "/faq", label: "FAQ" },
   { href: "/contact", label: "Contact" },
 ];
