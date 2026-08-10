@@ -5,7 +5,7 @@ import { createAuthedServerClient } from "@/lib/supabase/server";
 import { updateBookingStatus } from "@/lib/actions/admin-bookings";
 import { HelpTooltip } from "@/components/admin/help-tooltip";
 
-export const metadata: Metadata = { title: "Rendez-vous découverte" };
+export const metadata: Metadata = { title: "Rendez-vous" };
 
 type SearchParams = { q?: string; status?: string; period?: string; type?: string };
 
