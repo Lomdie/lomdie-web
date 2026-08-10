@@ -53,7 +53,13 @@ function bookingType(payload: CalPayload) {
 }
 
 export async function POST(request: Request) {
-  const secret = process.env.CAL_WEBHOOK_SECRET;
+  const supabase = createServiceRoleClient();
+  const { data: storedSecret } = await supabase
+    .from("integration_secrets")
+    .select("secret")
+    .eq("name", "cal_webhook")
+    .maybeSingle();
+  const secret = process.env.CAL_WEBHOOK_SECRET ?? storedSecret?.secret;
   if (!secret) {
     return NextResponse.json({ error: "Webhook non configure" }, { status: 503 });
   }
@@ -78,7 +84,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Rendez-vous incomplet" }, { status: 400 });
   }
 
-  const supabase = createServiceRoleClient();
   let candidateId: string | null = null;
   if (attendee?.email) {
     const { data: candidate } = await supabase
