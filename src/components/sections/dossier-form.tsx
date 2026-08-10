@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import Image from "next/image";
 import { CheckCircle2 } from "lucide-react";
+import { CalEmbed } from "@/components/sections/cal-embed";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -83,24 +84,26 @@ function Section({
   );
 }
 
-export function DossierForm() {
+export function DossierForm({ calLink = "" }: { calLink?: string }) {
   const [state, formAction, isPending] = useActionState(
     submitDossierCandidature,
     initialState
   );
 
   if (state.status === "success") {
-    return (
+    return <div className="space-y-8">
       <div className="rounded-2xl border border-primary/30 bg-primary/5 p-10 text-center">
         <CheckCircle2 className="mx-auto h-9 w-9 text-primary" strokeWidth={1.5} />
         <p className="mt-4 font-display text-xl">Dossier envoyé</p>
         <p className="mt-2 text-sm text-muted-foreground">{state.message}</p>
+        <p className="mt-3 font-medium">Choisissez maintenant votre rendez-vous.</p>
       </div>
-    );
+      {calLink ? <CalEmbed calLink={calLink} /> : <p className="text-center text-sm text-muted-foreground">Le calendrier est temporairement indisponible. Charlène vous contactera pour convenir d’un créneau.</p>}
+    </div>;
   }
 
   return (
-    <form action={formAction} className="space-y-6">
+    <form action={formAction} className="mx-auto max-w-2xl space-y-6">
       <Section title="Votre profil">
         <div className="grid gap-5 sm:grid-cols-2">
           <div className="space-y-1.5">

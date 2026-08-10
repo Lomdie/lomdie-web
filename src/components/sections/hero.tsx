@@ -15,12 +15,12 @@ export function Hero({ eyebrow, title, subtitle }: HeroProps) {
     <section className="relative border-b border-border/70 bg-background lg:min-h-[720px] lg:overflow-hidden">
       <div className="absolute inset-0 hidden lg:block">
         <Image
-          src="/images/stock/hero-cover.jpg"
-          alt="Couple élégant partageant un dîner en tête-à-tête"
+          src="/images/stock/hero-training-couple.webp"
+          alt="Couple partageant un moment complice après une séance de sport"
           fill
           priority
           sizes="100vw"
-          className="object-cover object-[75%_40%]"
+          className="object-cover object-[62%_50%]"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-background from-0% via-background/92 via-28% to-transparent to-50%" />
       </div>
@@ -54,12 +54,12 @@ export function Hero({ eyebrow, title, subtitle }: HeroProps) {
 
         <HeroImageMotion className="relative aspect-4/5 overflow-hidden rounded-2xl shadow-xl lg:hidden">
           <Image
-            src="/images/stock/hero-cover.jpg"
-            alt="Couple élégant partageant un dîner en tête-à-tête"
+            src="/images/stock/hero-training-couple.webp"
+            alt="Couple partageant un moment complice après une séance de sport"
             fill
             priority
             sizes="90vw"
-            className="object-cover object-[60%_30%]"
+            className="object-cover object-[62%_50%]"
           />
         </HeroImageMotion>
       </div>

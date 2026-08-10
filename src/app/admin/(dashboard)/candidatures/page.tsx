@@ -1,30 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Users, FileText, CalendarClock } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Users, CalendarClock } from "lucide-react";
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { createAuthedServerClient } from "@/lib/supabase/server";
-import { candidateStatusLabels, type CandidateStatus } from "@/lib/candidate-status";
+import type { CandidateStatus } from "@/lib/candidate-status";
 import { HelpTooltip } from "@/components/admin/help-tooltip";
 import { CandidaturesFilters } from "@/components/admin/candidatures-filters";
 import { AdminLinkCard } from "@/components/admin/admin-link-card";
-import { CandidatePhotoPreview } from "@/components/admin/candidate-photo-preview";
-import { CandidateTextCell } from "@/components/admin/candidate-text-cell";
+import { CandidateInlineRow, CreateCandidateInlineRow } from "@/components/admin/candidate-inline-row";
 
 export const metadata: Metadata = { title: "Candidatures" };
-
-const maritalStatusLabels: Record<string, string> = {
-  celibataire: "Célibataire",
-  divorce: "Divorcé(e)",
-  veuf: "Veuf/veuve",
-};
 
 interface CandidateRow {
   id: string;
@@ -95,47 +86,10 @@ interface SearchParams {
 }
 
 const PAGE_SIZE = 10;
-const TECHNICAL_EMPTY_VALUES = new Set([
-  "non renseigne",
-  "non renseigné",
-  "non renseignee",
-  "non renseignée",
-  "non renseigne(e)",
-  "non renseigné(e)",
-]);
-
-function displayValue(value: string | null | undefined) {
-  const trimmed = value?.trim();
-  if (!trimmed || TECHNICAL_EMPTY_VALUES.has(trimmed.toLocaleLowerCase("fr-FR"))) {
-    return null;
-  }
-  return trimmed;
-}
-
-function displayEmail(value: string | null | undefined) {
-  const email = displayValue(value);
-  return email && !email.toLowerCase().endsWith("@lomdie-sans-email.invalid")
-    ? email
-    : null;
-}
-
 function yearsAgo(years: number) {
   const date = new Date();
   date.setFullYear(date.getFullYear() - years);
   return date.toISOString().slice(0, 10);
-}
-
-function calculateAge(birthDate: string) {
-  const birth = new Date(birthDate);
-  const today = new Date();
-  let age = today.getFullYear() - birth.getFullYear();
-  if (
-    today.getMonth() < birth.getMonth() ||
-    (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())
-  ) {
-    age -= 1;
-  }
-  return age;
 }
 
 async function getCandidates(filters: SearchParams, page: number) {
@@ -245,7 +199,7 @@ export default async function AdminCandidaturesPage({
       <div>
         <h1 className="flex items-center gap-2 font-display text-2xl">
           Candidatures
-          <HelpTooltip text="Chaque candidature reçue via le formulaire du site apparaît ici. Cliquez sur un nom pour voir le détail complet, changer son statut, ajouter des notes internes ou décider si son profil apparaît (anonymisé) sur la page « Les profils » du site public. Utilisez les filtres pour retrouver rapidement un profil. Deux liens à envoyer vous-même (ci-dessous, non accessibles depuis le site public) : le dossier détaillé une fois le candidat qualifié, et le lien de prise de rendez-vous une fois son paiement confirmé." />
+          <HelpTooltip text="Chaque candidature reçue via le formulaire du site apparaît ici. Cliquez sur un nom pour voir le détail complet. Après paiement, envoyez au candidat le lien unique ci-dessous : il complétera son dossier détaillé puis réservera son rendez-vous sur la même page." />
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {total} dossier{total > 1 ? "s" : ""} dans la base.
@@ -253,15 +207,10 @@ export default async function AdminCandidaturesPage({
         </p>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <AdminLinkCard
-          icon={<FileText className="h-5 w-5 shrink-0 text-primary" strokeWidth={1.5} />}
-          label="Dossier de candidature détaillé (après qualification)"
-          path="/dossier-candidature"
-        />
+      <div className="grid gap-3">
         <AdminLinkCard
           icon={<CalendarClock className="h-5 w-5 shrink-0 text-primary" strokeWidth={1.5} />}
-          label="Prise de rendez-vous (après paiement)"
+          label="Dossier détaillé et prise de rendez-vous (après paiement)"
           path="/prendre-rendez-vous"
         />
       </div>
@@ -287,6 +236,7 @@ export default async function AdminCandidaturesPage({
                 <TableHead>Contact</TableHead>
                 <TableHead>Genre</TableHead>
                 <TableHead>Âge</TableHead>
+                <TableHead>Âge importé</TableHead>
                 <TableHead>Ville</TableHead>
                 <TableHead>Pays</TableHead>
                 <TableHead>Métier</TableHead>
@@ -319,73 +269,13 @@ export default async function AdminCandidaturesPage({
                 <TableHead>Critères Airtable liés</TableHead>
                 <TableHead>Statut</TableHead>
                 <TableHead>Date de candidature</TableHead>
+                <TableHead className="sticky right-0 z-20 bg-card">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
+              <CreateCandidateInlineRow columnCount={39} />
               {candidates.map((candidate) => (
-                <TableRow key={candidate.id} className="cursor-pointer">
-                  <TableCell className="sticky left-0 z-10 bg-card">
-                    <Link
-                      href={`/admin/candidatures/${candidate.id}`}
-                      prefetch={false}
-                      className="font-medium hover:text-primary"
-                    >
-                      {candidate.first_name} {candidate.last_name}
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    <CandidatePhotoPreview
-                      urls={candidate.resolvedPhotoUrls}
-                      candidateName={`${candidate.first_name} ${candidate.last_name}`}
-                    />
-                  </TableCell>
-                  <TableCell className="max-w-35 text-muted-foreground sm:max-w-none">
-                    <div className="truncate">{displayEmail(candidate.email)}</div>
-                    <div className="hidden sm:block">{displayValue(candidate.phone)}</div>
-                  </TableCell>
-                  <TableCell className="capitalize text-muted-foreground">
-                    {displayValue(candidate.gender)}
-                  </TableCell>
-                  <TableCell>{candidate.birth_date ? calculateAge(candidate.birth_date) : null}</TableCell>
-                  <TableCell>{displayValue(candidate.city)}</TableCell>
-                  <TableCell>{displayValue(candidate.country)}</TableCell>
-                  <TableCell><CandidateTextCell value={displayValue(candidate.occupation)} label="Métier" /></TableCell>
-                  <TableCell>{candidate.marital_status ? maritalStatusLabels[candidate.marital_status] ?? candidate.marital_status : null}</TableCell>
-                  <TableCell>{candidate.children_count ?? null}</TableCell>
-                  <TableCell>{displayValue(candidate.tribe)}</TableCell>
-                  <TableCell>{displayValue(candidate.religion)}</TableCell>
-                  <TableCell>{candidate.height_cm ? `${candidate.height_cm} cm` : null}</TableCell>
-                  <TableCell>{displayValue(candidate.single_duration)}</TableCell>
-                  <TableCell>{candidate.years_in_country != null ? `${candidate.years_in_country} ans` : null}</TableCell>
-                  <TableCell><CandidateTextCell value={displayValue(candidate.hobbies)} label="Centres d’intérêt" /></TableCell>
-                  <TableCell><CandidateTextCell value={displayValue(candidate.personality)} label="Personnalité" /></TableCell>
-                  <TableCell>{displayValue(candidate.search_age_range)}</TableCell>
-                  <TableCell>{candidate.search_marital_status?.map((value) => maritalStatusLabels[value] ?? value).join(", ") || null}</TableCell>
-                  <TableCell>{candidate.search_max_children ?? null}</TableCell>
-                  <TableCell>{displayValue(candidate.search_height_range)}</TableCell>
-                  <TableCell>{displayValue(candidate.search_tribe)}</TableCell>
-                  <TableCell>{displayValue(candidate.search_religion)}</TableCell>
-                  <TableCell>{displayValue(candidate.search_body_type)}</TableCell>
-                  <TableCell><CandidateTextCell value={displayValue(candidate.search_qualities)} label="Qualités recherchées" /></TableCell>
-                  <TableCell className="capitalize">{displayValue(candidate.offer_tier)}</TableCell>
-                  <TableCell>{candidate.is_publicly_listed ? "Oui" : "Non"}</TableCell>
-                  <TableCell>{candidate.sensitive_data_consent ? "Oui" : "Non"}</TableCell>
-                  <TableCell><CandidateTextCell value={displayValue(candidate.motivation)} label="Motivation" /></TableCell>
-                  <TableCell><CandidateTextCell value={displayValue(candidate.admin_notes)} label="Notes admin" /></TableCell>
-                  <TableCell>{candidate.eligibility_score ?? null}</TableCell>
-                  <TableCell><CandidateTextCell value={displayValue(candidate.meeting_notes)} label="Meeting Notes" /></TableCell>
-                  <TableCell><CandidateTextCell value={displayValue(candidate.key_decisions)} label="Key Decisions" /></TableCell>
-                  <TableCell>{displayValue(candidate.airtable_status)}</TableCell>
-                  <TableCell>{candidate.airtable_criteria_ids?.length || null}</TableCell>
-                  <TableCell>
-                    <Badge variant="secondary">
-                      {candidateStatusLabels[candidate.status]}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {new Date(candidate.application_date).toLocaleDateString("fr-FR")}
-                  </TableCell>
-                </TableRow>
+                <CandidateInlineRow key={candidate.id} candidate={candidate} />
               ))}
             </TableBody>
           </Table>
