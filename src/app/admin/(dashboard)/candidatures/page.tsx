@@ -14,6 +14,7 @@ import { HelpTooltip } from "@/components/admin/help-tooltip";
 import { CandidaturesFilters } from "@/components/admin/candidatures-filters";
 import { AdminLinkCard } from "@/components/admin/admin-link-card";
 import { CandidateInlineRow, CreateCandidateInlineRow } from "@/components/admin/candidate-inline-row";
+import type { CandidateMatchStatus } from "@/lib/candidate-match-status";
 
 export const metadata: Metadata = { title: "Candidatures" };
 
@@ -169,13 +170,31 @@ async function getCandidates(filters: SearchParams, page: number) {
     });
   }
 
-  return {
-    candidates: candidates.map((candidate) => ({
+  const rows = candidates.map((candidate) => ({
       ...candidate,
       resolvedPhotoUrls: (candidate.photo_urls ?? [])
         .map((path: string) => urlByPath.get(path))
         .filter((url: string | undefined): url is string => Boolean(url)),
-    })) as CandidateRow[],
+    })) as CandidateRow[];
+  const ids = rows.map((candidate) => candidate.id);
+  const [matchesResult, optionsResult] = await Promise.all([
+    ids.length > 0
+      ? supabase.from("candidate_matches")
+          .select("id, candidate_a_id, candidate_b_id, status")
+          .or(`candidate_a_id.in.(${ids.join(",")}),candidate_b_id.in.(${ids.join(",")})`)
+      : Promise.resolve({ data: [], error: null }),
+    supabase.from("candidates").select("id, first_name, last_name").order("first_name"),
+  ]);
+
+  if (matchesResult.error) console.error("getCandidates: relations failed", matchesResult.error);
+
+  return {
+    candidates: rows,
+    matches: (matchesResult.data ?? []) as { id: string; candidate_a_id: string; candidate_b_id: string; status: CandidateMatchStatus }[],
+    candidateOptions: (optionsResult.data ?? []).map((candidate) => ({
+      id: candidate.id,
+      name: `${candidate.first_name} ${candidate.last_name}`.trim(),
+    })),
     total: count ?? 0,
   };
 }
@@ -188,7 +207,7 @@ export default async function AdminCandidaturesPage({
   const filters = await searchParams;
   const requestedPage = Number.parseInt(filters.page ?? "1", 10);
   const page = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
-  const { candidates, total } = await getCandidates(filters, page);
+  const { candidates, matches, candidateOptions, total } = await getCandidates(filters, page);
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const hasActiveFilters = Boolean(
     Object.values(filters).some(Boolean)
@@ -268,14 +287,20 @@ export default async function AdminCandidaturesPage({
                 <TableHead>Statut Airtable</TableHead>
                 <TableHead>Critères Airtable liés</TableHead>
                 <TableHead>Statut</TableHead>
+                <TableHead>Mise en relation</TableHead>
                 <TableHead>Date de candidature</TableHead>
                 <TableHead className="sticky right-0 z-20 bg-card">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              <CreateCandidateInlineRow columnCount={39} />
+              <CreateCandidateInlineRow columnCount={40} />
               {candidates.map((candidate) => (
-                <CandidateInlineRow key={candidate.id} candidate={candidate} />
+                <CandidateInlineRow
+                  key={candidate.id}
+                  candidate={candidate}
+                  matches={matches.filter((match) => match.candidate_a_id === candidate.id || match.candidate_b_id === candidate.id)}
+                  candidateOptions={candidateOptions}
+                />
               ))}
             </TableBody>
           </Table>

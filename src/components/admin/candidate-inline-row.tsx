@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { CandidatePhotoPreview } from "@/components/admin/candidate-photo-preview";
+import { CandidateMatchCell, type CandidateMatchView, type CandidateOption } from "@/components/admin/candidate-match-cell";
 import {
   createCandidateInline,
   deleteCandidateInline,
@@ -170,7 +171,7 @@ function InlineCell({
   );
 }
 
-export function CandidateInlineRow({ candidate }: { candidate: Candidate }) {
+export function CandidateInlineRow({ candidate, matches, candidateOptions }: { candidate: Candidate; matches: CandidateMatchView[]; candidateOptions: CandidateOption[] }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState("");
@@ -228,6 +229,7 @@ export function CandidateInlineRow({ candidate }: { candidate: Candidate }) {
       <TableCell><InlineCell candidateId={candidate.id} field="airtable_status" value={candidate.airtable_status} label="Statut historique" /></TableCell>
       <TableCell><InlineCell candidateId={candidate.id} field="airtable_criteria_ids" value={candidate.airtable_criteria_ids} display={candidate.airtable_criteria_ids?.length ?? ""} label="Critères historiques liés" type="array" /></TableCell>
       <TableCell><InlineCell candidateId={candidate.id} field="status" value={candidate.status} display={<Badge variant="secondary">{candidateStatusLabels[candidate.status]}</Badge>} label="Statut" type="select" options={candidateStatuses.map((value) => ({ value, label: candidateStatusLabels[value] }))} /></TableCell>
+      <TableCell><CandidateMatchCell candidateId={candidate.id} matches={matches} candidates={candidateOptions} /></TableCell>
       <TableCell><InlineCell candidateId={candidate.id} field="application_date" value={candidate.application_date.slice(0, 10)} display={new Date(candidate.application_date).toLocaleDateString("fr-FR")} label="Date de candidature" type="date" /></TableCell>
       <TableCell className="sticky right-0 z-10 bg-card">
         <Button type="button" variant="ghost" size="icon" onClick={remove} disabled={pending} aria-label="Supprimer la candidature" className="text-destructive hover:text-destructive"><Trash2 className="h-4 w-4" /></Button>
