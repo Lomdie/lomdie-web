@@ -101,6 +101,7 @@ async function getCandidates(filters: SearchParams, page: number) {
       "id, first_name, last_name, email, phone, gender, birth_date, country, city, years_in_country, marital_status, children_count, tribe, religion, sensitive_data_consent, height_cm, occupation, single_duration, hobbies, personality, photo_urls, search_age_range, search_marital_status, search_max_children, search_height_range, search_tribe, search_religion, search_body_type, search_qualities, status, offer_tier, is_publicly_listed, motivation, admin_notes, created_at, application_date, airtable_age, eligibility_score, meeting_notes, key_decisions, airtable_status, airtable_criteria_ids",
       { count: "exact" }
     )
+    .neq("status", "nouvelle_candidature")
     .order("application_date", { ascending: filters.sort === "date_asc" })
     .order("id", { ascending: true });
 
@@ -183,7 +184,7 @@ async function getCandidates(filters: SearchParams, page: number) {
           .select("id, candidate_a_id, candidate_b_id, status")
           .or(`candidate_a_id.in.(${ids.join(",")}),candidate_b_id.in.(${ids.join(",")})`)
       : Promise.resolve({ data: [], error: null }),
-    supabase.from("candidates").select("id, first_name, last_name").order("first_name"),
+    supabase.from("candidates").select("id, first_name, last_name").neq("status", "nouvelle_candidature").order("first_name"),
   ]);
 
   if (matchesResult.error) console.error("getCandidates: relations failed", matchesResult.error);
@@ -218,7 +219,7 @@ export default async function AdminCandidaturesPage({
       <div>
         <h1 className="flex items-center gap-2 font-display text-2xl">
           Candidatures
-          <HelpTooltip text="Chaque candidature reçue via le formulaire du site apparaît ici. Cliquez sur un nom pour voir le détail complet. Après paiement, envoyez au candidat le lien unique ci-dessous : il complétera son dossier détaillé puis réservera son rendez-vous sur la même page." />
+          <HelpTooltip text="Seules les personnes ayant envoyé leur dossier détaillé apparaissent ici. Les personnes qui réservent uniquement un appel découverte restent dans la page Rendez-vous. Après paiement, envoyez au candidat le lien unique ci-dessous : il complétera son dossier puis réservera son rendez-vous sur la même page." />
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {total} dossier{total > 1 ? "s" : ""} dans la base.

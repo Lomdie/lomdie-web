@@ -147,6 +147,7 @@ export async function createCandidateInline(input: {
       gender: parsed.data.gender,
       email,
       phone: parsed.data.phone,
+      status: "en_qualification",
     })
     .select("id")
     .single();
