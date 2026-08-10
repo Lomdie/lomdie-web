@@ -19,6 +19,11 @@ type CalPayload = {
   endTime?: string;
   meetingUrl?: string;
   videoCallUrl?: string;
+  location?: string | { link?: string; value?: string };
+  metadata?: {
+    meetingUrl?: string;
+    videoCallUrl?: string;
+  };
   rescheduleUrl?: string;
   cancellationUrl?: string;
   cancelUrl?: string;
@@ -50,6 +55,17 @@ function bookingType(payload: CalPayload) {
   return descriptor.includes("paiement") || descriptor.includes("payment")
     ? "post_payment"
     : "discovery";
+}
+
+function meetingLink(payload: CalPayload) {
+  const location = typeof payload.location === "string"
+    ? payload.location
+    : payload.location?.link ?? payload.location?.value;
+  return payload.meetingUrl
+    ?? payload.videoCallUrl
+    ?? payload.metadata?.meetingUrl
+    ?? payload.metadata?.videoCallUrl
+    ?? (location?.startsWith("http") ? location : null);
 }
 
 export async function POST(request: Request) {
@@ -85,13 +101,15 @@ export async function POST(request: Request) {
   }
 
   let candidateId: string | null = null;
+  let candidateStatus: string | null = null;
   if (attendee?.email) {
     const { data: candidate } = await supabase
       .from("candidates")
-      .select("id")
+      .select("id, status")
       .ilike("email", attendee.email)
       .maybeSingle();
     candidateId = candidate?.id ?? null;
+    candidateStatus = candidate?.status ?? null;
   }
 
   const { error } = await supabase.from("calendly_bookings").upsert(
@@ -99,7 +117,9 @@ export async function POST(request: Request) {
       external_uid: externalUid,
       candidate_id: candidateId,
       title: payload.title ?? null,
-      booking_type: bookingType(payload),
+      booking_type: candidateStatus && candidateStatus !== "nouvelle_candidature"
+        ? "post_payment"
+        : bookingType(payload),
       event_type_id: payload.eventTypeId ?? null,
       event_type_slug: payload.type ?? null,
       attendee_name: attendee?.name ?? null,
@@ -107,7 +127,7 @@ export async function POST(request: Request) {
       attendee_phone: attendee?.phoneNumber ?? attendee?.phone ?? null,
       scheduled_at: payload.startTime,
       end_at: payload.endTime ?? null,
-      meeting_link: payload.meetingUrl ?? payload.videoCallUrl ?? null,
+      meeting_link: meetingLink(payload),
       reschedule_link: payload.rescheduleUrl ?? null,
       cancellation_link: payload.cancellationUrl ?? payload.cancelUrl ?? null,
       notes: payload.additionalNotes ?? null,
