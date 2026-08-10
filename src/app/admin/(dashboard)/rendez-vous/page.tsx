@@ -5,7 +5,7 @@ import { createAuthedServerClient } from "@/lib/supabase/server";
 import { updateBookingStatus } from "@/lib/actions/admin-bookings";
 import { HelpTooltip } from "@/components/admin/help-tooltip";
 
-export const metadata: Metadata = { title: "Rendez-vous" };
+export const metadata: Metadata = { title: "Prospects" };
 
 type SearchParams = { q?: string; status?: string; period?: string; type?: string };
 
@@ -142,7 +142,7 @@ export default async function AdminRendezVousPage({ searchParams }: { searchPara
     <div className="space-y-6">
       <div>
         <h1 className="flex items-center gap-2 font-display text-2xl">
-          Prospects et rendez-vous
+          Prospects
           <HelpTooltip text="Tous les prospects du formulaire simple apparaissent ici, même sans réservation. Un appel réservé avec la même adresse e-mail est automatiquement rattaché au prospect. Les dossiers détaillés restent dans la page Candidatures." />
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">

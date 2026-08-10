@@ -53,7 +53,6 @@ interface CandidateRow {
   motivation: string | null;
   admin_notes: string | null;
   application_date: string;
-  airtable_age: number | null;
   eligibility_score: number | null;
   meeting_notes: string | null;
   key_decisions: string | null;
@@ -98,7 +97,7 @@ async function getCandidates(filters: SearchParams, page: number) {
   let query = supabase
     .from("candidates")
     .select(
-      "id, first_name, last_name, email, phone, gender, birth_date, country, city, years_in_country, marital_status, children_count, tribe, religion, sensitive_data_consent, height_cm, occupation, single_duration, hobbies, personality, photo_urls, search_age_range, search_marital_status, search_max_children, search_height_range, search_tribe, search_religion, search_body_type, search_qualities, status, offer_tier, is_publicly_listed, motivation, admin_notes, created_at, application_date, airtable_age, eligibility_score, meeting_notes, key_decisions, airtable_status, airtable_criteria_ids",
+      "id, first_name, last_name, email, phone, gender, birth_date, country, city, years_in_country, marital_status, children_count, tribe, religion, sensitive_data_consent, height_cm, occupation, single_duration, hobbies, personality, photo_urls, search_age_range, search_marital_status, search_max_children, search_height_range, search_tribe, search_religion, search_body_type, search_qualities, status, offer_tier, is_publicly_listed, motivation, admin_notes, created_at, application_date, eligibility_score, meeting_notes, key_decisions, airtable_status, airtable_criteria_ids",
       { count: "exact" }
     )
     .neq("status", "nouvelle_candidature")
@@ -219,7 +218,7 @@ export default async function AdminCandidaturesPage({
       <div>
         <h1 className="flex items-center gap-2 font-display text-2xl">
           Candidatures
-          <HelpTooltip text="Seules les personnes ayant envoyé leur dossier détaillé apparaissent ici. Les personnes qui réservent uniquement un appel découverte restent dans la page Rendez-vous. Après paiement, envoyez au candidat le lien unique ci-dessous : il complétera son dossier puis réservera son rendez-vous sur la même page." />
+          <HelpTooltip text="Seules les personnes ayant envoyé leur dossier détaillé apparaissent ici. Les prospects du formulaire simple, avec ou sans appel découverte, restent dans la page Prospects. Après paiement, envoyez au candidat le lien unique ci-dessous : il complétera son dossier puis réservera son rendez-vous sur la même page." />
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {total} dossier{total > 1 ? "s" : ""} dans la base.
@@ -256,7 +255,6 @@ export default async function AdminCandidaturesPage({
                 <TableHead>Contact</TableHead>
                 <TableHead>Genre</TableHead>
                 <TableHead>Âge</TableHead>
-                <TableHead>Âge importé</TableHead>
                 <TableHead>Ville</TableHead>
                 <TableHead>Pays</TableHead>
                 <TableHead>Métier</TableHead>
@@ -294,7 +292,7 @@ export default async function AdminCandidaturesPage({
               </TableRow>
             </TableHeader>
             <TableBody>
-              <CreateCandidateInlineRow columnCount={40} />
+              <CreateCandidateInlineRow columnCount={39} />
               {candidates.map((candidate) => (
                 <CandidateInlineRow
                   key={candidate.id}

@@ -46,9 +46,9 @@ const navItems: NavItem[] = [
   },
   {
     href: "/admin/rendez-vous",
-    label: "Rendez-vous",
+    label: "Prospects",
     icon: CalendarClock,
-    hint: "Suivre les appels découverte réservés sur Cal.com",
+    hint: "Suivre tous les prospects, avec ou sans appel découverte",
   },
   {
     href: "/admin/contenu",

@@ -32,7 +32,7 @@ interface Candidate {
   search_height_range: string | null; search_tribe: string | null; search_religion: string | null;
   search_body_type: string | null; search_qualities: string | null; offer_tier: string | null;
   is_publicly_listed: boolean; motivation: string | null; admin_notes: string | null;
-  airtable_age: number | null; eligibility_score: number | null; meeting_notes: string | null; key_decisions: string | null;
+  eligibility_score: number | null; meeting_notes: string | null; key_decisions: string | null;
   airtable_status: string | null; airtable_criteria_ids: string[] | null; status: CandidateStatus;
   application_date: string; photo_urls: string[] | null; resolvedPhotoUrls: string[];
 }
@@ -217,7 +217,6 @@ export function CandidateInlineRow({ candidate, matches, candidateOptions }: { c
       <TableCell className="min-w-56"><InlineCell candidateId={candidate.id} field="email" value={candidate.email.endsWith("@lomdie-sans-email.invalid") ? "" : candidate.email} label="E-mail" /><InlineCell candidateId={candidate.id} field="phone" value={candidate.phone} label="Téléphone" /></TableCell>
       <TableCell><InlineCell candidateId={candidate.id} field="gender" value={candidate.gender} label="Genre" type="select" options={[{ value: "femme", label: "Femme" }, { value: "homme", label: "Homme" }]} /></TableCell>
       <TableCell><InlineCell candidateId={candidate.id} field="birth_date" value={candidate.birth_date} display={ageFromDate(candidate.birth_date)} label="Date de naissance" type="date" /></TableCell>
-      <TableCell><InlineCell candidateId={candidate.id} field="airtable_age" value={candidate.airtable_age} label="Âge importé" type="number" /></TableCell>
       <TableCell><InlineCell candidateId={candidate.id} field="city" value={candidate.city} label="Ville" /></TableCell>
       <TableCell><InlineCell candidateId={candidate.id} field="country" value={candidate.country} label="Pays" /></TableCell>
       <TableCell><InlineCell candidateId={candidate.id} field="occupation" value={candidate.occupation} label="Métier" type="textarea" /></TableCell>
