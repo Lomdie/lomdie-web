@@ -85,7 +85,7 @@ interface SearchParams {
   offer?: string;
 }
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
 const TECHNICAL_EMPTY_VALUES = new Set([
   "non renseigne",
   "non renseigné",
