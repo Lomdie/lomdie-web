@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { useState } from "react";
 
 export function CandidateTextCell({
   value,
@@ -15,30 +9,23 @@ export function CandidateTextCell({
   value: string | null;
   label: string;
 }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   if (!value) return null;
 
   return (
-    <Dialog>
-      <DialogTrigger
-        render={
-          <button
-            type="button"
-            className="block w-full max-w-56 truncate rounded px-1 py-0.5 text-left hover:bg-secondary focus-visible:outline-2 focus-visible:outline-primary"
-            title={`Lire ${label.toLowerCase()}`}
-          />
-        }
-      >
-        {value}
-      </DialogTrigger>
-      <DialogContent className="max-w-xl">
-        <DialogTitle>{label}</DialogTitle>
-        <DialogDescription className="sr-only">
-          Contenu complet du champ {label.toLowerCase()}.
-        </DialogDescription>
-        <p className="max-h-[60vh] overflow-y-auto whitespace-pre-wrap break-words text-sm leading-6">
-          {value}
-        </p>
-      </DialogContent>
-    </Dialog>
+    <button
+      type="button"
+      aria-expanded={isExpanded}
+      aria-label={`${isExpanded ? "Réduire" : "Lire"} ${label.toLowerCase()}`}
+      onClick={() => setIsExpanded((expanded) => !expanded)}
+      className={`block rounded px-1 py-0.5 text-left align-top hover:bg-secondary focus-visible:outline-2 focus-visible:outline-primary ${
+        isExpanded
+          ? "w-96 whitespace-pre-wrap break-words leading-6"
+          : "w-56 truncate"
+      }`}
+    >
+      {value}
+    </button>
   );
 }
