@@ -13,6 +13,9 @@ async function getPublicProfiles(): Promise<PublicProfile[]> {
   const { data, error } = await supabase
     .from("public_candidate_profiles")
     .select("id, gender, age, city, occupation")
+    .not("age", "is", null)
+    .not("city", "is", null)
+    .not("occupation", "is", null)
     .limit(5);
 
   if (error) {
@@ -25,10 +28,10 @@ async function getPublicProfiles(): Promise<PublicProfile[]> {
 export async function ProfilesTeaser() {
   const publicProfiles = await getPublicProfiles();
   const profiles: PublicProfile[] = publicProfiles.length > 0 ? publicProfiles : [
-    { id: "preview-f-1", gender: "femme", age: null, city: null, occupation: null },
-    { id: "preview-h-1", gender: "homme", age: null, city: null, occupation: null },
-    { id: "preview-f-2", gender: "femme", age: null, city: null, occupation: null },
-    { id: "preview-h-2", gender: "homme", age: null, city: null, occupation: null },
+    { id: "preview-f-1", gender: "femme", age: 28, city: "Créteil", occupation: "Data analyst" },
+    { id: "preview-h-1", gender: "homme", age: 36, city: "Melun", occupation: "Contrôleur de gestion" },
+    { id: "preview-f-2", gender: "femme", age: 31, city: "Cergy", occupation: "Pharmacienne" },
+    { id: "preview-h-2", gender: "homme", age: 34, city: "Paris", occupation: "Ingénieur cybersécurité" },
   ];
 
   return (
@@ -41,7 +44,7 @@ export async function ProfilesTeaser() {
         </Reveal>
 
         <div className="mt-10">
-          <Carousel itemClassName="w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]" autoplayMs={5000}>
+          <Carousel itemClassName="w-full" autoplayMs={5000}>
             {profiles.map((profile) => (
               <div key={profile.id} className="mx-auto flex w-full max-w-xs justify-center">
                 <ProfileCard profile={profile} />
