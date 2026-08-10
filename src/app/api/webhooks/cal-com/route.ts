@@ -61,11 +61,35 @@ function meetingLink(payload: CalPayload) {
   const location = typeof payload.location === "string"
     ? payload.location
     : payload.location?.link ?? payload.location?.value;
-  return payload.meetingUrl
+  const directLink = payload.meetingUrl
     ?? payload.videoCallUrl
     ?? payload.metadata?.meetingUrl
     ?? payload.metadata?.videoCallUrl
     ?? (location?.startsWith("http") ? location : null);
+  if (directLink) return directLink;
+
+  const visit = (value: unknown, depth = 0): string | null => {
+    if (depth > 5) return null;
+    if (typeof value === "string") {
+      return /^https:\/\//.test(value) && /(meet\.google\.com|zoom\.us|teams\.microsoft\.com|cal\.com\/video)/i.test(value)
+        ? value
+        : null;
+    }
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        const found = visit(item, depth + 1);
+        if (found) return found;
+      }
+    } else if (value && typeof value === "object") {
+      for (const item of Object.values(value)) {
+        const found = visit(item, depth + 1);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+
+  return visit(payload);
 }
 
 export async function POST(request: Request) {
@@ -101,15 +125,13 @@ export async function POST(request: Request) {
   }
 
   let candidateId: string | null = null;
-  let candidateStatus: string | null = null;
   if (attendee?.email) {
     const { data: candidate } = await supabase
       .from("candidates")
-      .select("id, status")
+      .select("id")
       .ilike("email", attendee.email)
       .maybeSingle();
     candidateId = candidate?.id ?? null;
-    candidateStatus = candidate?.status ?? null;
   }
 
   const { error } = await supabase.from("calendly_bookings").upsert(
@@ -117,9 +139,7 @@ export async function POST(request: Request) {
       external_uid: externalUid,
       candidate_id: candidateId,
       title: payload.title ?? null,
-      booking_type: candidateStatus && candidateStatus !== "nouvelle_candidature"
-        ? "post_payment"
-        : bookingType(payload),
+      booking_type: candidateId ? "post_payment" : bookingType(payload),
       event_type_id: payload.eventTypeId ?? null,
       event_type_slug: payload.type ?? null,
       attendee_name: attendee?.name ?? null,
