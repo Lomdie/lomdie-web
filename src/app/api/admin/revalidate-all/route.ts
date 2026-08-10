@@ -1,5 +1,5 @@
 import { revalidateTag } from "next/cache";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 const TAGS = [
   "site-content",
@@ -11,9 +11,14 @@ const TAGS = [
   "public-profiles",
 ];
 
-export async function POST() {
+export async function POST(request: NextRequest) {
+  const secret = request.nextUrl.searchParams.get("secret");
+  if (secret !== process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
   for (const tag of TAGS) {
-    revalidateTag(tag);
+    revalidateTag(tag, { expire: 0 });
   }
   return NextResponse.json({ revalidated: TAGS });
 }
