@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { createServiceRoleClient } from "@/lib/supabase/server";
+import { sendNewsletterConfirmationEmail } from "@/lib/email";
 
 const newsletterSchema = z.object({
   email: z.string().trim().email("Adresse email invalide"),
@@ -33,6 +34,10 @@ export async function subscribeNewsletter(
       status: "error",
       message: "Une erreur est survenue. Merci de réessayer dans quelques instants.",
     };
+  }
+
+  if (!error) {
+    await sendNewsletterConfirmationEmail(parsed.data.email);
   }
 
   return { status: "success", message: "Merci, vous êtes inscrit(e) !" };

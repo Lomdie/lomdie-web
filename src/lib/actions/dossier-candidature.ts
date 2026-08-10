@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { createServiceRoleClient } from "@/lib/supabase/server";
+import { sendDossierConfirmationEmail } from "@/lib/email";
 
 const dossierSchema = z.object({
   firstName: z.string().trim().min(1, "Le prénom est requis"),
@@ -208,6 +209,8 @@ export async function submitDossierCandidature(
       return { status: "error", message: "Une erreur est survenue. Merci de réessayer." };
     }
   }
+
+  await sendDossierConfirmationEmail(parsed.data.email, parsed.data.firstName);
 
   return {
     status: "success",

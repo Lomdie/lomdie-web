@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidateTag } from "next/cache";
 import { createServiceRoleClient } from "@/lib/supabase/server";
+import { sendCandidatureConfirmationEmail } from "@/lib/email";
 
 const candidatureSchema = z.object({
   firstName: z.string().trim().min(1, "Le prénom est requis"),
@@ -60,6 +61,8 @@ export async function submitCandidature(
   }
 
   revalidateTag("public-profiles", "minutes");
+
+  await sendCandidatureConfirmationEmail(parsed.data.email, parsed.data.firstName);
 
   return {
     status: "success",

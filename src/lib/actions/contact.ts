@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { createServiceRoleClient } from "@/lib/supabase/server";
+import { sendContactConfirmationEmail } from "@/lib/email";
 
 const contactSchema = z.object({
   name: z.string().trim().min(1, "Le nom est requis"),
@@ -51,6 +52,8 @@ export async function submitContact(
       message: "Une erreur est survenue. Merci de réessayer dans quelques instants.",
     };
   }
+
+  await sendContactConfirmationEmail(parsed.data.email, parsed.data.name);
 
   return {
     status: "success",
