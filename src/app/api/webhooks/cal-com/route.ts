@@ -125,13 +125,15 @@ export async function POST(request: Request) {
   }
 
   let candidateId: string | null = null;
+  let candidateStatus: string | null = null;
   if (attendee?.email) {
     const { data: candidate } = await supabase
       .from("candidates")
-      .select("id")
+      .select("id, status")
       .ilike("email", attendee.email)
       .maybeSingle();
     candidateId = candidate?.id ?? null;
+    candidateStatus = candidate?.status ?? null;
   }
 
   const { error } = await supabase.from("calendly_bookings").upsert(
@@ -139,7 +141,11 @@ export async function POST(request: Request) {
       external_uid: externalUid,
       candidate_id: candidateId,
       title: payload.title ?? null,
-      booking_type: candidateId ? "post_payment" : bookingType(payload),
+      booking_type: candidateStatus === "nouvelle_candidature"
+        ? "discovery"
+        : candidateId
+          ? "post_payment"
+          : bookingType(payload),
       event_type_id: payload.eventTypeId ?? null,
       event_type_slug: payload.type ?? null,
       attendee_name: attendee?.name ?? null,
