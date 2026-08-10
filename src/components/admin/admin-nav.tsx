@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
+  CalendarClock,
   Users,
   FileText,
   MessageSquareQuote,
@@ -42,6 +43,12 @@ const navItems: NavItem[] = [
     label: "Candidatures",
     icon: Users,
     hint: "Toutes les personnes qui ont postulé sur le site",
+  },
+  {
+    href: "/admin/rendez-vous",
+    label: "Rendez-vous",
+    icon: CalendarClock,
+    hint: "Suivre les appels découverte réservés sur Cal.com",
   },
   {
     href: "/admin/contenu",

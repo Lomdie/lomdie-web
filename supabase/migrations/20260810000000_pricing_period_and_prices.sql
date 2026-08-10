@@ -5,3 +5,4 @@ update pricing_plans set price = 290, price_period = 'pour 3 mois' where tier = 
 update pricing_plans set price = 490, price_period = 'pour 6 mois' where tier = 'hunter';
 
 notify pgrst, 'reload schema';
+
