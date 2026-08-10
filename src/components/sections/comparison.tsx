@@ -33,12 +33,12 @@ export function Comparison() {
 
         <Reveal
           delay={0.15}
-          className="mt-12 grid overflow-hidden rounded-2xl border border-border/70 shadow-sm lg:grid-cols-2"
+          className="mt-12 grid overflow-hidden rounded-2xl border border-border/70 shadow-sm lg:grid-cols-[minmax(0,1.7fr)_minmax(19rem,0.9fr)]"
         >
-          <div className="flex flex-col items-center gap-10 bg-card p-8 sm:p-10 md:flex-row">
+          <div className="flex flex-col items-center gap-8 bg-card p-7 sm:p-9 md:flex-row md:items-start lg:gap-7 lg:p-8 xl:gap-9 xl:p-10">
             <PhoneMockup />
 
-            <div className="relative grid flex-1 gap-x-8 gap-y-6 sm:grid-cols-2">
+            <div className="grid w-full min-w-0 flex-1 items-start gap-y-6 sm:grid-cols-[minmax(0,1fr)_3.5rem_minmax(0,1fr)] sm:gap-x-3">
               <div>
                 <h3 className="mb-4 text-sm font-medium text-muted-foreground">
                   Applications classiques
@@ -53,6 +53,12 @@ export function Comparison() {
                 </ul>
               </div>
 
+              <div className="flex items-center justify-center self-stretch">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-xs font-semibold uppercase tracking-wide text-primary-foreground shadow-md">
+                  Vs
+                </div>
+              </div>
+
               <div>
                 <h3 className="mb-4 text-sm font-medium text-primary">Lomdie</h3>
                 <ul className="space-y-3">
@@ -64,22 +70,19 @@ export function Comparison() {
                   ))}
                 </ul>
               </div>
-
-              <div className="absolute left-1/2 top-1/2 hidden h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-sm font-semibold uppercase tracking-wide text-primary-foreground shadow-md sm:flex">
-                Vs
-              </div>
             </div>
           </div>
 
-          <div className="relative hidden min-h-100 lg:block">
+          <div className="relative hidden min-h-105 lg:block">
             <Image
               src="/images/stock/couple-connection.jpg"
               alt="Couple partageant un moment de complicité"
               fill
-              sizes="45vw"
+              sizes="(min-width: 1280px) 34vw, 38vw"
               className="object-cover"
             />
-            <div className="absolute right-5 top-5 flex items-center gap-2 text-background">
+            <div className="absolute inset-x-0 top-0 h-28 bg-linear-to-b from-black/35 to-transparent" />
+            <div className="absolute right-5 top-5 flex items-center gap-2 text-white drop-shadow-md">
               <Image
                 src="/images/logo-lomdie-icon.png"
                 alt=""
