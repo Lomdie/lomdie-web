@@ -16,3 +16,11 @@ export async function updateBookingStatus(formData: FormData) {
   revalidatePath("/admin/rendez-vous");
 }
 
+export async function deleteBooking(formData: FormData) {
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+
+  const supabase = await createAuthedServerClient();
+  await supabase.from("calendly_bookings").delete().eq("id", id).eq("status", "cancelled");
+  revalidatePath("/admin/rendez-vous");
+}

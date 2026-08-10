@@ -4,6 +4,7 @@ import { CalendarClock, ExternalLink, Search } from "lucide-react";
 import { createAuthedServerClient } from "@/lib/supabase/server";
 import { updateBookingStatus } from "@/lib/actions/admin-bookings";
 import { HelpTooltip } from "@/components/admin/help-tooltip";
+import { DeleteBookingButton } from "@/components/admin/delete-booking-button";
 
 export const metadata: Metadata = { title: "Prospects" };
 
@@ -217,7 +218,7 @@ export default async function AdminRendezVousPage({ searchParams }: { searchPara
                       </form>
                     )}
                   </td>
-                  <td className="p-4"><div className="flex flex-wrap gap-2">{row.meeting_link ? <a href={row.meeting_link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-2 hover:bg-secondary">Rejoindre <ExternalLink className="h-3.5 w-3.5" /></a> : null}{row.reschedule_link ? <a href={row.reschedule_link} target="_blank" rel="noreferrer" className="rounded-lg border border-border px-3 py-2 hover:bg-secondary">Reprogrammer</a> : null}{row.cancellation_link ? <a href={row.cancellation_link} target="_blank" rel="noreferrer" className="rounded-lg border border-border px-3 py-2 hover:bg-secondary">Annuler</a> : null}</div></td>
+                  <td className="p-4"><div className="flex flex-wrap gap-2">{row.meeting_link ? <a href={row.meeting_link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-2 hover:bg-secondary">Rejoindre <ExternalLink className="h-3.5 w-3.5" /></a> : null}{row.reschedule_link ? <a href={row.reschedule_link} target="_blank" rel="noreferrer" className="rounded-lg border border-border px-3 py-2 hover:bg-secondary">Reprogrammer</a> : null}{row.cancellation_link ? <a href={row.cancellation_link} target="_blank" rel="noreferrer" className="rounded-lg border border-border px-3 py-2 hover:bg-secondary">Annuler</a> : null}{row.status === "cancelled" ? <DeleteBookingButton id={row.id} /> : null}</div></td>
                 </tr>
               ))}
             </tbody>
