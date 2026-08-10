@@ -98,8 +98,8 @@ export default async function AdminRendezVousPage({ searchParams }: { searchPara
               {bookings.map((booking) => (
                 <tr key={booking.id} className="border-b border-border/70 last:border-0">
                   <td className="whitespace-nowrap p-4">
-                    <div className="font-medium">{new Date(booking.scheduled_at).toLocaleDateString("fr-FR", { dateStyle: "medium" })}</div>
-                    <div className="text-muted-foreground">{new Date(booking.scheduled_at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}{booking.end_at ? ` – ${new Date(booking.end_at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}` : ""}</div>
+                    <div className="font-medium">{new Date(booking.scheduled_at).toLocaleDateString("fr-FR", { dateStyle: "medium", timeZone: "Europe/Paris" })}</div>
+                    <div className="text-muted-foreground">{new Date(booking.scheduled_at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris" })}{booking.end_at ? ` – ${new Date(booking.end_at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris" })}` : ""}</div>
                   </td>
                   <td className="whitespace-nowrap p-4 font-medium">{typeLabels[booking.booking_type] ?? booking.booking_type}</td>
                   <td className="p-4"><div className="font-medium">{booking.attendee_name}</div><div className="text-muted-foreground">{booking.attendee_email}</div><div className="text-muted-foreground">{booking.attendee_phone}</div>{booking.candidate_id ? <Link href={`/admin/candidatures/${booking.candidate_id}`} className="mt-1 inline-block text-primary hover:underline">Voir la candidature</Link> : null}</td>
