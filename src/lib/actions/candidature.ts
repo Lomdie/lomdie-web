@@ -18,6 +18,11 @@ export interface CandidatureFormState {
   status: "idle" | "success" | "error";
   message?: string;
   fieldErrors?: Partial<Record<keyof z.infer<typeof candidatureSchema>, string>>;
+  prospect?: {
+    name: string;
+    email: string;
+    notes?: string;
+  };
 }
 
 export async function submitCandidature(
@@ -66,7 +71,11 @@ export async function submitCandidature(
 
   return {
     status: "success",
-    message:
-      "Votre candidature a bien été reçue. Notre équipe vous recontactera prochainement.",
+    message: "Vos informations ont bien été reçues. Choisissez maintenant votre créneau d’appel découverte.",
+    prospect: {
+      name: `${parsed.data.firstName} ${parsed.data.lastName}`,
+      email: parsed.data.email,
+      notes: parsed.data.motivation,
+    },
   };
 }

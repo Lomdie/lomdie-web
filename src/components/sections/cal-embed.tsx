@@ -3,7 +3,17 @@
 import { useEffect } from "react";
 import Cal, { getCalApi } from "@calcom/embed-react";
 
-export function CalEmbed({ calLink }: { calLink: string }) {
+export function CalEmbed({
+  calLink,
+  name,
+  email,
+  notes,
+}: {
+  calLink: string;
+  name?: string;
+  email?: string;
+  notes?: string;
+}) {
   useEffect(() => {
     (async () => {
       const cal = await getCalApi();
@@ -69,7 +79,13 @@ export function CalEmbed({ calLink }: { calLink: string }) {
         <Cal
           calLink={calLink}
           style={{ width: "100%", height: "650px", overflow: "scroll" }}
-          config={{ layout: "month_view", theme: "light" }}
+          config={{
+            layout: "month_view",
+            theme: "light",
+            ...(name ? { name } : {}),
+            ...(email ? { email } : {}),
+            ...(notes ? { notes } : {}),
+          }}
         />
       </div>
     </div>

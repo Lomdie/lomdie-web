@@ -1,8 +1,8 @@
 "use client";
 
 import { useActionState } from "react";
-import Link from "next/link";
-import { CheckCircle2, CalendarClock } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
+import { CalEmbed } from "@/components/sections/cal-embed";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,37 +18,36 @@ import {
 
 const initialState: CandidatureFormState = { status: "idle" };
 
-export function CandidatureForm() {
+export function CandidatureForm({ calLink }: { calLink: string }) {
   const [state, formAction, isPending] = useActionState(
     submitCandidature,
     initialState
   );
 
   if (state.status === "success") {
-    return (
+    return <div className="space-y-8">
       <div className="rounded-2xl border border-primary/30 bg-primary/5 p-8 text-center">
         <CheckCircle2 className="mx-auto h-8 w-8 text-primary" strokeWidth={1.5} />
-        <p className="mt-4 font-display text-lg">Candidature envoyée</p>
+        <p className="mt-4 font-display text-lg">Informations enregistrées</p>
         <p className="mt-2 text-sm text-muted-foreground">{state.message}</p>
-        <div className="mt-6 border-t border-primary/20 pt-6">
-          <p className="text-sm text-muted-foreground">
-            Pour accélérer votre accompagnement, réservez dès maintenant un
-            appel découverte avec notre équipe.
-          </p>
-          <Button
-            render={<Link href="/prendre-rendez-vous" className="gap-2" />}
-            className="mt-4"
-          >
-            <CalendarClock className="h-4 w-4" strokeWidth={1.5} />
-            Réserver mon appel découverte
-          </Button>
-        </div>
       </div>
-    );
+      {calLink ? (
+        <CalEmbed
+          calLink={calLink}
+          name={state.prospect?.name}
+          email={state.prospect?.email}
+          notes={state.prospect?.notes}
+        />
+      ) : (
+        <p className="text-center text-sm text-muted-foreground">
+          Le calendrier est temporairement indisponible. Charlène vous contactera pour convenir d’un créneau.
+        </p>
+      )}
+    </div>;
   }
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form action={formAction} className="mx-auto max-w-xl space-y-5">
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="firstName">Prénom</Label>

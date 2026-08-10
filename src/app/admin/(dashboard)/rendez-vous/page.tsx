@@ -5,6 +5,7 @@ import { createAuthedServerClient } from "@/lib/supabase/server";
 import { updateBookingStatus } from "@/lib/actions/admin-bookings";
 import { HelpTooltip } from "@/components/admin/help-tooltip";
 import { DeleteBookingButton } from "@/components/admin/delete-booking-button";
+import { DeleteAllProspectsButton } from "@/components/admin/delete-all-prospects-button";
 
 export const metadata: Metadata = { title: "Prospects" };
 
@@ -141,7 +142,8 @@ export default async function AdminRendezVousPage({ searchParams }: { searchPara
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="flex items-start justify-between gap-4">
+        <div>
         <h1 className="flex items-center gap-2 font-display text-2xl">
           Prospects
           <HelpTooltip text="Tous les prospects du formulaire simple apparaissent ici, même sans réservation. Un appel réservé avec la même adresse e-mail est automatiquement rattaché au prospect. Les dossiers détaillés restent dans la page Candidatures." />
@@ -149,6 +151,8 @@ export default async function AdminRendezVousPage({ searchParams }: { searchPara
         <p className="mt-1 text-sm text-muted-foreground">
           {rows.length} ligne{rows.length > 1 ? "s" : ""} affichée{rows.length > 1 ? "s" : ""}.
         </p>
+        </div>
+        {rows.length > 0 && !hasFilters ? <DeleteAllProspectsButton /> : null}
       </div>
 
       <form className="grid gap-3 rounded-2xl border border-border/70 bg-card p-4 sm:grid-cols-[1fr_170px_170px_170px_auto]">
