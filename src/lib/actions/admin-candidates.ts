@@ -64,8 +64,13 @@ function normalizeInlineValue(field: (typeof editableCandidateFields)[number], r
     return number;
   }
   if (arrayFields.has(field)) {
-    if (Array.isArray(rawValue)) return rawValue.map(String).map((item) => item.trim()).filter(Boolean);
-    return String(rawValue ?? "").split(",").map((item) => item.trim()).filter(Boolean);
+    const values = Array.isArray(rawValue)
+      ? rawValue.map(String).map((item) => item.trim()).filter(Boolean)
+      : String(rawValue ?? "").split(",").map((item) => item.trim()).filter(Boolean);
+    if (field === "search_marital_status" && values.some((value) => !["celibataire", "divorce", "veuf"].includes(value))) {
+      throw new Error("Situation recherchée invalide.");
+    }
+    return values;
   }
   const value = String(rawValue ?? "").trim();
   if (requiredTextFields.has(field) && !value) throw new Error("Ce champ est obligatoire.");
@@ -75,6 +80,7 @@ function normalizeInlineValue(field: (typeof editableCandidateFields)[number], r
   if (field === "gender" && !["homme", "femme"].includes(value)) throw new Error("Genre invalide.");
   if (field === "marital_status" && value && !["celibataire", "divorce", "veuf"].includes(value)) throw new Error("Situation invalide.");
   if (field === "offer_tier" && value && !["reseau", "signature", "hunter"].includes(value)) throw new Error("Offre invalide.");
+  if (field === "search_body_type" && value && !["mince", "moyenne", "athletique", "embonpoint"].includes(value)) throw new Error("Carrure invalide.");
   if (field === "status" && !candidateStatuses.includes(value as (typeof candidateStatuses)[number])) throw new Error("Statut invalide.");
   return value || null;
 }

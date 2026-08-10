@@ -20,7 +20,7 @@ import {
 import { candidateStatusLabels, candidateStatuses, type CandidateStatus } from "@/lib/candidate-status";
 
 type Field = Parameters<typeof updateCandidateCell>[0]["field"];
-type EditorType = "text" | "number" | "date" | "textarea" | "boolean" | "select" | "array";
+type EditorType = "text" | "number" | "date" | "textarea" | "boolean" | "select" | "array" | "multiselect";
 
 interface Candidate {
   id: string; first_name: string; last_name: string; email: string; phone: string; gender: string;
@@ -149,7 +149,27 @@ function InlineCell({
 
   return (
     <div className="min-w-48 rounded-lg border border-primary/40 bg-background p-1.5 shadow-md">
-      {type === "select" || type === "boolean" ? (
+      {type === "multiselect" ? (
+        <div className="space-y-1 p-1">
+          {(options ?? []).map((option) => {
+            const selected = draft.split(",").map((item) => item.trim()).filter(Boolean);
+            return <label key={option.value} className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={selected.includes(option.value)}
+                disabled={pending}
+                onChange={(event) => {
+                  const next = event.target.checked
+                    ? [...selected, option.value]
+                    : selected.filter((value) => value !== option.value);
+                  setDraft(next.join(", "));
+                }}
+              />
+              {option.label}
+            </label>;
+          })}
+        </div>
+      ) : type === "select" || type === "boolean" ? (
         <select {...common} className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm">
           {type !== "boolean" && <option value="">Vide</option>}
           {(type === "boolean" ? [{ value: "true", label: "Oui" }, { value: "false", label: "Non" }] : options ?? []).map((option) => (
@@ -211,12 +231,12 @@ export function CandidateInlineRow({ candidate, matches, candidateOptions }: { c
       <TableCell><InlineCell candidateId={candidate.id} field="hobbies" value={candidate.hobbies} label="Centres d’intérêt" type="textarea" /></TableCell>
       <TableCell><InlineCell candidateId={candidate.id} field="personality" value={candidate.personality} label="Personnalité" type="textarea" /></TableCell>
       <TableCell><InlineCell candidateId={candidate.id} field="search_age_range" value={candidate.search_age_range} label="Âge recherché" /></TableCell>
-      <TableCell><InlineCell candidateId={candidate.id} field="search_marital_status" value={candidate.search_marital_status} display={candidate.search_marital_status?.map((v) => maritalOptions.find((o) => o.value === v)?.label ?? v).join(", ") ?? ""} label="Situation recherchée" type="array" /></TableCell>
+      <TableCell><InlineCell candidateId={candidate.id} field="search_marital_status" value={candidate.search_marital_status} display={candidate.search_marital_status?.map((v) => maritalOptions.find((o) => o.value === v)?.label ?? v).join(", ") ?? ""} label="Situation recherchée" type="multiselect" options={maritalOptions} /></TableCell>
       <TableCell><InlineCell candidateId={candidate.id} field="search_max_children" value={candidate.search_max_children} label="Enfants max." type="number" /></TableCell>
       <TableCell><InlineCell candidateId={candidate.id} field="search_height_range" value={candidate.search_height_range} label="Taille recherchée" /></TableCell>
       <TableCell><InlineCell candidateId={candidate.id} field="search_tribe" value={candidate.search_tribe} label="Tribu recherchée" /></TableCell>
       <TableCell><InlineCell candidateId={candidate.id} field="search_religion" value={candidate.search_religion} label="Religion recherchée" /></TableCell>
-      <TableCell><InlineCell candidateId={candidate.id} field="search_body_type" value={candidate.search_body_type} label="Carrure recherchée" /></TableCell>
+      <TableCell><InlineCell candidateId={candidate.id} field="search_body_type" value={candidate.search_body_type} label="Carrure recherchée" type="select" options={[{ value: "mince", label: "Mince" }, { value: "moyenne", label: "Moyenne" }, { value: "athletique", label: "Athlétique" }, { value: "embonpoint", label: "Embonpoint" }]} /></TableCell>
       <TableCell><InlineCell candidateId={candidate.id} field="search_qualities" value={candidate.search_qualities} label="Qualités recherchées" type="textarea" /></TableCell>
       <TableCell><InlineCell candidateId={candidate.id} field="offer_tier" value={candidate.offer_tier} label="Offre" type="select" options={[{ value: "reseau", label: "Réseau" }, { value: "signature", label: "Signature" }, { value: "hunter", label: "Hunter" }]} /></TableCell>
       <TableCell><InlineCell candidateId={candidate.id} field="is_publicly_listed" value={candidate.is_publicly_listed} display={candidate.is_publicly_listed ? "Oui" : "Non"} label="Visible" type="boolean" /></TableCell>
