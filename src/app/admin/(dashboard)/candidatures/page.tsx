@@ -60,6 +60,13 @@ interface CandidateRow {
   is_publicly_listed: boolean;
   motivation: string | null;
   admin_notes: string | null;
+  application_date: string;
+  airtable_age: number | null;
+  eligibility_score: number | null;
+  meeting_notes: string | null;
+  key_decisions: string | null;
+  airtable_status: string | null;
+  airtable_criteria_ids: string[] | null;
   resolvedPhotoUrls: string[];
   status: CandidateStatus;
   created_at: string;
@@ -67,6 +74,7 @@ interface CandidateRow {
 
 interface SearchParams {
   page?: string;
+  sort?: string;
   q?: string;
   status?: string;
   gender?: string;
@@ -135,10 +143,11 @@ async function getCandidates(filters: SearchParams, page: number) {
   let query = supabase
     .from("candidates")
     .select(
-      "id, first_name, last_name, email, phone, gender, birth_date, country, city, years_in_country, marital_status, children_count, tribe, religion, sensitive_data_consent, height_cm, occupation, single_duration, hobbies, personality, photo_urls, search_age_range, search_marital_status, search_max_children, search_height_range, search_tribe, search_religion, search_body_type, search_qualities, status, offer_tier, is_publicly_listed, motivation, admin_notes, created_at",
+      "id, first_name, last_name, email, phone, gender, birth_date, country, city, years_in_country, marital_status, children_count, tribe, religion, sensitive_data_consent, height_cm, occupation, single_duration, hobbies, personality, photo_urls, search_age_range, search_marital_status, search_max_children, search_height_range, search_tribe, search_religion, search_body_type, search_qualities, status, offer_tier, is_publicly_listed, motivation, admin_notes, created_at, application_date, airtable_age, eligibility_score, meeting_notes, key_decisions, airtable_status, airtable_criteria_ids",
       { count: "exact" }
     )
-    .order("created_at", { ascending: false });
+    .order("application_date", { ascending: filters.sort === "date_asc" })
+    .order("id", { ascending: true });
 
   if (filters.status) {
     query = query.eq("status", filters.status);
@@ -303,8 +312,13 @@ export default async function AdminCandidaturesPage({
                 <TableHead>Consentement sensible</TableHead>
                 <TableHead>Motivation</TableHead>
                 <TableHead>Notes admin</TableHead>
+                <TableHead>Note éligibilité AI</TableHead>
+                <TableHead>Meeting Notes</TableHead>
+                <TableHead>Key Decisions</TableHead>
+                <TableHead>Statut Airtable</TableHead>
+                <TableHead>Critères Airtable liés</TableHead>
                 <TableHead>Statut</TableHead>
-                <TableHead>Reçue le</TableHead>
+                <TableHead>Date de candidature</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -358,13 +372,18 @@ export default async function AdminCandidaturesPage({
                   <TableCell>{candidate.sensitive_data_consent ? "Oui" : "Non"}</TableCell>
                   <TableCell><CandidateTextCell value={displayValue(candidate.motivation)} label="Motivation" /></TableCell>
                   <TableCell><CandidateTextCell value={displayValue(candidate.admin_notes)} label="Notes admin" /></TableCell>
+                  <TableCell>{candidate.eligibility_score ?? null}</TableCell>
+                  <TableCell><CandidateTextCell value={displayValue(candidate.meeting_notes)} label="Meeting Notes" /></TableCell>
+                  <TableCell><CandidateTextCell value={displayValue(candidate.key_decisions)} label="Key Decisions" /></TableCell>
+                  <TableCell>{displayValue(candidate.airtable_status)}</TableCell>
+                  <TableCell>{candidate.airtable_criteria_ids?.length || null}</TableCell>
                   <TableCell>
                     <Badge variant="secondary">
                       {candidateStatusLabels[candidate.status]}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {new Date(candidate.created_at).toLocaleDateString("fr-FR")}
+                    {new Date(candidate.application_date).toLocaleDateString("fr-FR")}
                   </TableCell>
                 </TableRow>
               ))}

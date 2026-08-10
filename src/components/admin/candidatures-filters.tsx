@@ -16,6 +16,7 @@ export function CandidaturesFilters() {
   const updateParam = useCallback(
     (key: string, value: string) => {
       const params = new URLSearchParams(searchParams.toString());
+      if (key !== "page") params.delete("page");
       if (value) {
         params.set(key, value);
       } else {
@@ -28,7 +29,9 @@ export function CandidaturesFilters() {
     [pathname, router, searchParams]
   );
 
-  const hasFilters = searchParams.toString().length > 0;
+  const hasFilters = Array.from(searchParams.keys()).some(
+    (key) => !["page", "sort"].includes(key)
+  );
   const selectClassName = "h-9 rounded-md border border-input bg-background px-3 text-sm";
 
   return (
@@ -77,6 +80,18 @@ export function CandidaturesFilters() {
         <option value="no">Non visible</option>
       </select>
 
+      <select
+        value={searchParams.get("sort") ?? "date_desc"}
+        onChange={(event) =>
+          updateParam("sort", event.target.value === "date_desc" ? "" : event.target.value)
+        }
+        className={selectClassName}
+        aria-label="Trier par date de candidature"
+      >
+        <option value="date_desc">Plus récentes d’abord</option>
+        <option value="date_asc">Plus anciennes d’abord</option>
+      </select>
+
       {hasFilters && (
         <Button
           type="button"
@@ -91,7 +106,7 @@ export function CandidaturesFilters() {
       )}
       </div>
 
-      <details open={hasFilters && Array.from(searchParams.keys()).some((key) => !["q", "status", "gender", "visible"].includes(key))}>
+      <details open={hasFilters && Array.from(searchParams.keys()).some((key) => !["q", "status", "gender", "visible", "page", "sort"].includes(key))}>
         <summary className="cursor-pointer text-sm font-medium text-primary">
           Filtres avancés de matching
         </summary>
