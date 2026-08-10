@@ -57,7 +57,7 @@ async function getPricingPlans(): Promise<PricingPlan[]> {
   const supabase = createServerReadClient();
   const { data, error } = await supabase
     .from("pricing_plans")
-    .select("id, tier, name, description, price, currency, is_popular, features, not_included, cta_label")
+    .select("id, tier, name, description, price, price_period, currency, is_popular, features, not_included, cta_label")
     .order("sort_order");
 
   if (error) {
@@ -99,12 +99,17 @@ export async function Pricing() {
                   <Icon className="h-6 w-6 text-primary" strokeWidth={1.5} />
                 </div>
                 <h3 className="mt-5 font-display text-xl">{plan.name}</h3>
-                <p className="mt-2 font-display text-3xl">
+                <p className="mt-2 flex items-baseline gap-1.5 font-display text-3xl">
                   {plan.price === null
                     ? "Sur demande"
                     : plan.price === 0
                       ? "Gratuit"
                       : `${plan.price} ${plan.currency}`}
+                  {plan.price !== null && plan.price !== 0 && plan.price_period && (
+                    <span className="font-sans text-sm font-normal text-muted-foreground">
+                      {plan.price_period}
+                    </span>
+                  )}
                 </p>
                 {plan.description && (
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
