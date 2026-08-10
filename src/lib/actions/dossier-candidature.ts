@@ -42,7 +42,7 @@ export interface DossierFormState {
   fieldErrors?: Record<string, string>;
 }
 
-const MAX_PHOTO_SIZE = 8 * 1024 * 1024;
+const MAX_PHOTO_SIZE = 1.5 * 1024 * 1024;
 const ALLOWED_PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 async function uploadPhoto(
@@ -51,7 +51,7 @@ async function uploadPhoto(
   label: string
 ): Promise<{ path?: string; error?: string }> {
   if (file.size > MAX_PHOTO_SIZE) {
-    return { error: `La photo "${label}" ne doit pas dépasser 8 Mo.` };
+    return { error: `La photo "${label}" est encore trop volumineuse après optimisation.` };
   }
   if (!ALLOWED_PHOTO_TYPES.includes(file.type)) {
     return { error: `Formats acceptés pour la photo "${label}" : JPG, PNG, WebP.` };

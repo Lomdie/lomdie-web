@@ -16,6 +16,39 @@ import {
 } from "@/lib/actions/dossier-candidature";
 
 const initialState: DossierFormState = { status: "idle" };
+const MAX_UPLOADED_PHOTO_SIZE = 1.4 * 1024 * 1024;
+
+async function optimizePhoto(file: File): Promise<File> {
+  if (file.size <= MAX_UPLOADED_PHOTO_SIZE) return file;
+
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, 1800 / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("Impossible de préparer cette photo.");
+  context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+
+  let quality = 0.86;
+  let blob: Blob | null = null;
+  do {
+    blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, "image/jpeg", quality)
+    );
+    quality -= 0.08;
+  } while (blob && blob.size > MAX_UPLOADED_PHOTO_SIZE && quality >= 0.46);
+
+  if (!blob || blob.size > MAX_UPLOADED_PHOTO_SIZE) {
+    throw new Error("Cette photo est trop volumineuse. Choisissez une image plus légère.");
+  }
+
+  return new File([blob], `${file.name.replace(/\.[^.]+$/, "")}.jpg`, {
+    type: "image/jpeg",
+    lastModified: Date.now(),
+  });
+}
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
@@ -34,6 +67,8 @@ function PhotoField({
   error?: string;
 }) {
   const [preview, setPreview] = useState<string | null>(null);
+  const [localError, setLocalError] = useState<string>();
+  const [isOptimizing, setIsOptimizing] = useState(false);
 
   return (
     <div className="space-y-1.5">
@@ -44,20 +79,41 @@ function PhotoField({
         type="file"
         accept="image/jpeg,image/png,image/webp"
         required
-        onChange={(event) => {
+        onChange={async (event) => {
+          const input = event.currentTarget;
           const file = event.target.files?.[0];
-          setPreview((current) => {
-            if (current) URL.revokeObjectURL(current);
-            return file ? URL.createObjectURL(file) : null;
-          });
+          if (!file) return;
+          input.value = "";
+          setLocalError(undefined);
+          setIsOptimizing(true);
+
+          try {
+            const optimized = await optimizePhoto(file);
+            const transfer = new DataTransfer();
+            transfer.items.add(optimized);
+            input.files = transfer.files;
+            setPreview((current) => {
+              if (current) URL.revokeObjectURL(current);
+              return URL.createObjectURL(optimized);
+            });
+          } catch (photoError) {
+            setLocalError(
+              photoError instanceof Error
+                ? photoError.message
+                : "Impossible de préparer cette photo."
+            );
+          } finally {
+            setIsOptimizing(false);
+          }
         }}
       />
+      {isOptimizing && <p className="text-xs text-muted-foreground">Optimisation de la photo…</p>}
       {preview && (
         <div className="relative aspect-3/4 w-32 overflow-hidden rounded-lg border border-border/70 bg-secondary/40">
           <Image src={preview} alt={`Aperçu — ${label}`} fill sizes="128px" className="object-cover" unoptimized />
         </div>
       )}
-      <FieldError message={error} />
+      <FieldError message={localError ?? error} />
     </div>
   );
 }
