@@ -15,8 +15,15 @@ import { candidateStatusLabels, type CandidateStatus } from "@/lib/candidate-sta
 import { HelpTooltip } from "@/components/admin/help-tooltip";
 import { CandidaturesFilters } from "@/components/admin/candidatures-filters";
 import { AdminLinkCard } from "@/components/admin/admin-link-card";
+import { CandidatePhotoPreview } from "@/components/admin/candidate-photo-preview";
 
 export const metadata: Metadata = { title: "Candidatures" };
+
+const maritalStatusLabels: Record<string, string> = {
+  celibataire: "Célibataire",
+  divorce: "Divorcé(e)",
+  veuf: "Veuf/veuve",
+};
 
 interface CandidateRow {
   id: string;
@@ -29,6 +36,30 @@ interface CandidateRow {
   occupation: string | null;
   birth_date: string | null;
   photo_urls: string[] | null;
+  country: string | null;
+  years_in_country: number | null;
+  marital_status: string | null;
+  children_count: number | null;
+  tribe: string | null;
+  religion: string | null;
+  sensitive_data_consent: boolean;
+  height_cm: number | null;
+  single_duration: string | null;
+  hobbies: string | null;
+  personality: string | null;
+  search_age_range: string | null;
+  search_marital_status: string[] | null;
+  search_max_children: number | null;
+  search_height_range: string | null;
+  search_tribe: string | null;
+  search_religion: string | null;
+  search_body_type: string | null;
+  search_qualities: string | null;
+  offer_tier: string | null;
+  is_publicly_listed: boolean;
+  motivation: string | null;
+  admin_notes: string | null;
+  resolvedPhotoUrls: string[];
   status: CandidateStatus;
   created_at: string;
 }
@@ -77,7 +108,7 @@ async function getCandidates(filters: SearchParams): Promise<CandidateRow[]> {
   let query = supabase
     .from("candidates")
     .select(
-      "id, first_name, last_name, email, phone, gender, city, occupation, birth_date, photo_urls, status, created_at"
+      "id, first_name, last_name, email, phone, gender, birth_date, country, city, years_in_country, marital_status, children_count, tribe, religion, sensitive_data_consent, height_cm, occupation, single_duration, hobbies, personality, photo_urls, search_age_range, search_marital_status, search_max_children, search_height_range, search_tribe, search_religion, search_body_type, search_qualities, status, offer_tier, is_publicly_listed, motivation, admin_notes, created_at"
     )
     .order("created_at", { ascending: false });
 
@@ -132,7 +163,26 @@ async function getCandidates(filters: SearchParams): Promise<CandidateRow[]> {
   }
 
   const { data } = await query;
-  return data ?? [];
+  const candidates = data ?? [];
+  const paths = candidates.flatMap((candidate) => candidate.photo_urls ?? []);
+  const urlByPath = new Map<string, string>();
+
+  if (paths.length > 0) {
+    const { data: signed } = await supabase.storage
+      .from("candidate-photos")
+      .createSignedUrls(paths, 60 * 30);
+    paths.forEach((path, index) => {
+      const signedUrl = signed?.[index]?.signedUrl;
+      if (signedUrl) urlByPath.set(path, signedUrl);
+    });
+  }
+
+  return candidates.map((candidate) => ({
+    ...candidate,
+    resolvedPhotoUrls: (candidate.photo_urls ?? [])
+      .map((path: string) => urlByPath.get(path))
+      .filter((url: string | undefined): url is string => Boolean(url)),
+  }));
 }
 
 export default async function AdminCandidaturesPage({
@@ -189,17 +239,43 @@ export default async function AdminCandidaturesPage({
             <TableHeader>
               <TableRow>
                 <TableHead>Nom</TableHead>
+                <TableHead>Photos</TableHead>
                 <TableHead>Contact</TableHead>
-                <TableHead className="hidden sm:table-cell">Genre</TableHead>
-                <TableHead className="hidden lg:table-cell">Profil</TableHead>
+                <TableHead>Genre</TableHead>
+                <TableHead>Âge</TableHead>
+                <TableHead>Ville</TableHead>
+                <TableHead>Pays</TableHead>
+                <TableHead>Métier</TableHead>
+                <TableHead>Situation</TableHead>
+                <TableHead>Enfants</TableHead>
+                <TableHead>Tribu</TableHead>
+                <TableHead>Religion</TableHead>
+                <TableHead>Taille</TableHead>
+                <TableHead>Célibataire depuis</TableHead>
+                <TableHead>Ancienneté pays</TableHead>
+                <TableHead>Centres d’intérêt</TableHead>
+                <TableHead>Personnalité</TableHead>
+                <TableHead>Âge recherché</TableHead>
+                <TableHead>Situation recherchée</TableHead>
+                <TableHead>Enfants max.</TableHead>
+                <TableHead>Taille recherchée</TableHead>
+                <TableHead>Tribu recherchée</TableHead>
+                <TableHead>Religion recherchée</TableHead>
+                <TableHead>Carrure recherchée</TableHead>
+                <TableHead>Qualités recherchées</TableHead>
+                <TableHead>Offre</TableHead>
+                <TableHead>Visible</TableHead>
+                <TableHead>Consentement sensible</TableHead>
+                <TableHead>Motivation</TableHead>
+                <TableHead>Notes admin</TableHead>
                 <TableHead>Statut</TableHead>
-                <TableHead className="hidden md:table-cell">Reçue le</TableHead>
+                <TableHead>Reçue le</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {candidates.map((candidate) => (
                 <TableRow key={candidate.id} className="cursor-pointer">
-                  <TableCell>
+                  <TableCell className="sticky left-0 z-10 bg-card">
                     <Link
                       href={`/admin/candidatures/${candidate.id}`}
                       className="font-medium hover:text-primary"
@@ -207,32 +283,51 @@ export default async function AdminCandidaturesPage({
                       {candidate.first_name} {candidate.last_name}
                     </Link>
                   </TableCell>
+                  <TableCell>
+                    <CandidatePhotoPreview
+                      urls={candidate.resolvedPhotoUrls}
+                      candidateName={`${candidate.first_name} ${candidate.last_name}`}
+                    />
+                  </TableCell>
                   <TableCell className="max-w-35 text-muted-foreground sm:max-w-none">
                     <div className="truncate">{candidate.email}</div>
                     <div className="hidden sm:block">{candidate.phone}</div>
                   </TableCell>
-                  <TableCell className="hidden capitalize text-muted-foreground sm:table-cell">
+                  <TableCell className="capitalize text-muted-foreground">
                     {candidate.gender}
                   </TableCell>
-                  <TableCell className="hidden max-w-64 lg:table-cell">
-                    <div className="truncate font-medium">
-                      {[candidate.city, candidate.occupation].filter(Boolean).join(" · ") || "À compléter"}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {candidate.birth_date
-                        ? `${calculateAge(candidate.birth_date)} ans`
-                        : "Âge non renseigné"}
-                      {candidate.photo_urls?.length
-                        ? ` · ${candidate.photo_urls.length} photo${candidate.photo_urls.length > 1 ? "s" : ""}`
-                        : " · Sans photo"}
-                    </div>
-                  </TableCell>
+                  <TableCell>{candidate.birth_date ? calculateAge(candidate.birth_date) : "—"}</TableCell>
+                  <TableCell>{candidate.city || "—"}</TableCell>
+                  <TableCell>{candidate.country || "—"}</TableCell>
+                  <TableCell className="max-w-48 truncate">{candidate.occupation || "—"}</TableCell>
+                  <TableCell>{candidate.marital_status ? maritalStatusLabels[candidate.marital_status] ?? candidate.marital_status : "—"}</TableCell>
+                  <TableCell>{candidate.children_count ?? "—"}</TableCell>
+                  <TableCell>{candidate.tribe || "—"}</TableCell>
+                  <TableCell>{candidate.religion || "—"}</TableCell>
+                  <TableCell>{candidate.height_cm ? `${candidate.height_cm} cm` : "—"}</TableCell>
+                  <TableCell>{candidate.single_duration || "—"}</TableCell>
+                  <TableCell>{candidate.years_in_country != null ? `${candidate.years_in_country} ans` : "—"}</TableCell>
+                  <TableCell className="max-w-56 truncate" title={candidate.hobbies ?? undefined}>{candidate.hobbies || "—"}</TableCell>
+                  <TableCell className="max-w-56 truncate" title={candidate.personality ?? undefined}>{candidate.personality || "—"}</TableCell>
+                  <TableCell>{candidate.search_age_range || "—"}</TableCell>
+                  <TableCell>{candidate.search_marital_status?.map((value) => maritalStatusLabels[value] ?? value).join(", ") || "—"}</TableCell>
+                  <TableCell>{candidate.search_max_children ?? "—"}</TableCell>
+                  <TableCell>{candidate.search_height_range || "—"}</TableCell>
+                  <TableCell>{candidate.search_tribe || "—"}</TableCell>
+                  <TableCell>{candidate.search_religion || "—"}</TableCell>
+                  <TableCell>{candidate.search_body_type || "—"}</TableCell>
+                  <TableCell className="max-w-56 truncate" title={candidate.search_qualities ?? undefined}>{candidate.search_qualities || "—"}</TableCell>
+                  <TableCell className="capitalize">{candidate.offer_tier || "—"}</TableCell>
+                  <TableCell>{candidate.is_publicly_listed ? "Oui" : "Non"}</TableCell>
+                  <TableCell>{candidate.sensitive_data_consent ? "Oui" : "Non"}</TableCell>
+                  <TableCell className="max-w-56 truncate" title={candidate.motivation ?? undefined}>{candidate.motivation || "—"}</TableCell>
+                  <TableCell className="max-w-56 truncate" title={candidate.admin_notes ?? undefined}>{candidate.admin_notes || "—"}</TableCell>
                   <TableCell>
                     <Badge variant="secondary">
                       {candidateStatusLabels[candidate.status]}
                     </Badge>
                   </TableCell>
-                  <TableCell className="hidden text-muted-foreground md:table-cell">
+                  <TableCell className="text-muted-foreground">
                     {new Date(candidate.created_at).toLocaleDateString("fr-FR")}
                   </TableCell>
                 </TableRow>
