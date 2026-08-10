@@ -16,6 +16,7 @@ import { HelpTooltip } from "@/components/admin/help-tooltip";
 import { CandidaturesFilters } from "@/components/admin/candidatures-filters";
 import { AdminLinkCard } from "@/components/admin/admin-link-card";
 import { CandidatePhotoPreview } from "@/components/admin/candidate-photo-preview";
+import { CandidateTextCell } from "@/components/admin/candidate-text-cell";
 
 export const metadata: Metadata = { title: "Candidatures" };
 
@@ -334,7 +335,7 @@ export default async function AdminCandidaturesPage({
                   <TableCell>{candidate.birth_date ? calculateAge(candidate.birth_date) : null}</TableCell>
                   <TableCell>{displayValue(candidate.city)}</TableCell>
                   <TableCell>{displayValue(candidate.country)}</TableCell>
-                  <TableCell className="max-w-48 truncate">{displayValue(candidate.occupation)}</TableCell>
+                  <TableCell><CandidateTextCell value={displayValue(candidate.occupation)} label="Métier" /></TableCell>
                   <TableCell>{candidate.marital_status ? maritalStatusLabels[candidate.marital_status] ?? candidate.marital_status : null}</TableCell>
                   <TableCell>{candidate.children_count ?? null}</TableCell>
                   <TableCell>{displayValue(candidate.tribe)}</TableCell>
@@ -342,8 +343,8 @@ export default async function AdminCandidaturesPage({
                   <TableCell>{candidate.height_cm ? `${candidate.height_cm} cm` : null}</TableCell>
                   <TableCell>{displayValue(candidate.single_duration)}</TableCell>
                   <TableCell>{candidate.years_in_country != null ? `${candidate.years_in_country} ans` : null}</TableCell>
-                  <TableCell className="max-w-56 truncate" title={displayValue(candidate.hobbies) ?? undefined}>{displayValue(candidate.hobbies)}</TableCell>
-                  <TableCell className="max-w-56 truncate" title={displayValue(candidate.personality) ?? undefined}>{displayValue(candidate.personality)}</TableCell>
+                  <TableCell><CandidateTextCell value={displayValue(candidate.hobbies)} label="Centres d’intérêt" /></TableCell>
+                  <TableCell><CandidateTextCell value={displayValue(candidate.personality)} label="Personnalité" /></TableCell>
                   <TableCell>{displayValue(candidate.search_age_range)}</TableCell>
                   <TableCell>{candidate.search_marital_status?.map((value) => maritalStatusLabels[value] ?? value).join(", ") || null}</TableCell>
                   <TableCell>{candidate.search_max_children ?? null}</TableCell>
@@ -351,12 +352,12 @@ export default async function AdminCandidaturesPage({
                   <TableCell>{displayValue(candidate.search_tribe)}</TableCell>
                   <TableCell>{displayValue(candidate.search_religion)}</TableCell>
                   <TableCell>{displayValue(candidate.search_body_type)}</TableCell>
-                  <TableCell className="max-w-56 truncate" title={displayValue(candidate.search_qualities) ?? undefined}>{displayValue(candidate.search_qualities)}</TableCell>
+                  <TableCell><CandidateTextCell value={displayValue(candidate.search_qualities)} label="Qualités recherchées" /></TableCell>
                   <TableCell className="capitalize">{displayValue(candidate.offer_tier)}</TableCell>
                   <TableCell>{candidate.is_publicly_listed ? "Oui" : "Non"}</TableCell>
                   <TableCell>{candidate.sensitive_data_consent ? "Oui" : "Non"}</TableCell>
-                  <TableCell className="max-w-56 truncate" title={displayValue(candidate.motivation) ?? undefined}>{displayValue(candidate.motivation)}</TableCell>
-                  <TableCell className="max-w-56 truncate" title={displayValue(candidate.admin_notes) ?? undefined}>{displayValue(candidate.admin_notes)}</TableCell>
+                  <TableCell><CandidateTextCell value={displayValue(candidate.motivation)} label="Motivation" /></TableCell>
+                  <TableCell><CandidateTextCell value={displayValue(candidate.admin_notes)} label="Notes admin" /></TableCell>
                   <TableCell>
                     <Badge variant="secondary">
                       {candidateStatusLabels[candidate.status]}
