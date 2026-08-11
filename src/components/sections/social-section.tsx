@@ -54,7 +54,7 @@ export function SocialSection() {
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex flex-col items-center gap-2 rounded-2xl border border-border/70 bg-card px-8 py-6 transition-shadow hover:shadow-md"
+                className="flex h-32 w-32 flex-col items-center justify-center gap-2 rounded-2xl border border-border/70 bg-card px-3 py-4 text-center transition-shadow hover:shadow-md"
               >
                 <Icon className="h-9 w-9 text-primary" />
                 <span className="text-sm font-medium">{label}</span>
