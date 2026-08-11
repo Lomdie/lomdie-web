@@ -232,7 +232,7 @@ export default async function AdminRendezVousPage({ searchParams }: { searchPara
                     {row.booking_type !== "discovery" && row.meeting_link ? <a href={row.meeting_link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-2 hover:bg-secondary">Rejoindre <ExternalLink className="h-3.5 w-3.5" /></a> : null}
                     {row.reschedule_link ? <a href={row.reschedule_link} target="_blank" rel="noreferrer" className="rounded-lg border border-border px-3 py-2 hover:bg-secondary">Reprogrammer</a> : null}
                     {row.cancellation_link ? <a href={row.cancellation_link} target="_blank" rel="noreferrer" className="rounded-lg border border-border px-3 py-2 hover:bg-secondary">Annuler</a> : null}
-                    {row.status === "cancelled" ? <DeleteBookingButton id={row.id} /> : null}
+                    {!row.isProspectOnly ? <DeleteBookingButton id={row.id} prospectId={row.prospect?.id} /> : null}
                   </div></td>
                 </tr>
               ))}

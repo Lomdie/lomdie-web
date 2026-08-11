@@ -18,6 +18,7 @@ export async function updateBookingStatus(formData: FormData) {
 
 export async function deleteBooking(formData: FormData) {
   const id = String(formData.get("id") ?? "");
+  const prospectId = String(formData.get("prospectId") ?? "");
   if (!id) return;
 
   const authedSupabase = await createAuthedServerClient();
@@ -25,8 +26,18 @@ export async function deleteBooking(formData: FormData) {
   if (!user) return;
 
   const supabase = createServiceRoleClient();
-  await supabase.from("calendly_bookings").delete().eq("id", id).eq("status", "cancelled");
+  await supabase.from("calendly_bookings").delete().eq("id", id);
+
+  if (prospectId) {
+    await supabase
+      .from("candidates")
+      .delete()
+      .eq("id", prospectId)
+      .eq("status", "nouvelle_candidature");
+  }
+
   revalidatePath("/admin/rendez-vous");
+  revalidatePath("/admin");
 }
 
 export async function deleteProspect(formData: FormData) {
