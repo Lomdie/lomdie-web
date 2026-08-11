@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { PageHeader } from "@/components/sections/page-header";
 import { DossierForm } from "@/components/sections/dossier-form";
 import { getSiteContent } from "@/lib/site-content";
 
@@ -12,9 +11,6 @@ export const metadata: Metadata = {
 
 const defaults = {
   "rdv.cal_link": "",
-  "rdv.header.title": "Finalisez votre dossier et prenez rendez-vous",
-  "rdv.header.description":
-    "Après votre paiement, complétez votre profil puis choisissez directement votre créneau avec Charlène.",
 };
 
 export default async function PrendreRendezVousPage() {
@@ -25,14 +21,6 @@ export default async function PrendreRendezVousPage() {
     <>
       <SiteHeader />
       <main className="flex-1">
-        <PageHeader
-          eyebrow="Prendre rendez-vous"
-          title={content["rdv.header.title"] ?? defaults["rdv.header.title"]}
-          description={
-            content["rdv.header.description"] ?? defaults["rdv.header.description"]
-          }
-        />
-
         <section className="bg-secondary/20">
           <div className="mx-auto max-w-4xl px-6 py-16">
             <div className="mb-8 grid gap-3 sm:grid-cols-2">

@@ -6,10 +6,10 @@ export function SiteLogo({ className }: { className?: string }) {
   return (
     <Link href="/" className={cn("flex items-center", className)}>
       <Image
-        src="/images/logo-lomdie.png"
+        src="/images/logo-lomdie-v2.png"
         alt="Lomdie — Rencontres de qualité"
-        width={1498}
-        height={450}
+        width={1390}
+        height={472}
         priority
         className="h-auto w-40 sm:w-[10.125rem]"
       />
