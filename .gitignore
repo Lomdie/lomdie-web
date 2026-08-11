@@ -42,6 +42,16 @@ scripts/.airtable-token
 # playwright mcp session data
 .playwright-mcp/
 
+# Supabase CLI local state
+supabase/.temp/
+
+# generated quality-assurance artifacts
+tmp/
+
+# Python tooling caches
+__pycache__/
+*.pyc
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

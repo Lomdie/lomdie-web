@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Lomdie
 
-## Getting Started
+Plateforme de matchmaking Lomdie : site public, parcours prospects et candidats, calendrier Cal.com et back-office métier.
 
-First, run the development server:
+## Production
+
+- Site public : `https://lomdie.com`
+- Administration : `https://admin.lomdie.com`
+- Dépôt : `Lomdie/lomdie-web`
+- Hébergement : équipe Vercel **Lomdie**, projet **lomdie-web**
+- Backend : Supabase (Postgres, Auth et Storage)
+
+Le déploiement de production est déclenché automatiquement par un push sur `main`. Avant toute action Vercel, vérifier que la cible est bien l'équipe Lomdie et non un compte personnel.
+
+## Développement
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Contrôles avant livraison :
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run lint
+npx tsc --noEmit
+npm run build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Les variables locales vivent dans `.env.local` et ne doivent jamais être committées.
 
-## Learn More
+## Structure
 
-To learn more about Next.js, take a look at the following resources:
+- `src/app` : routes publiques et administration Next.js App Router.
+- `src/components` : composants publics, métier et interface.
+- `src/lib/actions` : Server Actions et logique métier.
+- `src/lib/supabase` : clients Supabase serveur et navigateur.
+- `supabase/migrations` : historique immuable du schéma de production.
+- `docs` : guide équipe et documentation technique à conserver.
+- `scripts/generate-documentation.py` : source reproductible des deux PDF.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Documentation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Pour régénérer les documents après une évolution fonctionnelle :
 
-## Deploy on Vercel
+```bash
+python scripts/generate-documentation.py
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `docs/Lomdie-Guide-Equipe.pdf` : usage quotidien pour Charlène et Ivrine.
+- `docs/Lomdie-Documentation-Technique.pdf` : architecture, exploitation et reprise.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Lire `AGENTS.md` avant toute modification : cette version de Next.js comporte des conventions spécifiques documentées localement dans `node_modules/next/dist/docs`.
