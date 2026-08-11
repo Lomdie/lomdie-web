@@ -96,7 +96,7 @@ async function getCandidates(filters: SearchParams, page: number) {
   let query = supabase
     .from("candidates")
     .select(
-      "id, first_name, last_name, email, phone, gender, birth_date, country, city, years_in_country, marital_status, children_count, tribe, religion, sensitive_data_consent, height_cm, occupation, single_duration, hobbies, personality, photo_urls, search_age_range, search_marital_status, search_max_children, search_height_range, search_tribe, search_religion, search_body_type, search_qualities, status, offer_tier, is_publicly_listed, motivation, admin_notes, created_at, application_date, eligibility_score, meeting_notes, key_decisions",
+      "id, first_name, last_name, email, phone, gender, birth_date, country, city, years_in_country, marital_status, children_count, tribe, religion, sensitive_data_consent, height_cm, occupation, single_duration, hobbies, personality, photo_urls, search_age_range, search_marital_status, search_max_children, search_height_range, search_tribe, search_religion, search_body_type, search_qualities, status, offer_tier, is_publicly_listed, is_paid, motivation, admin_notes, created_at, application_date, eligibility_score, meeting_notes, key_decisions",
       { count: "exact" }
     )
     .neq("status", "nouvelle_candidature")
@@ -171,7 +171,6 @@ async function getCandidates(filters: SearchParams, page: number) {
 
   const rows = candidates.map((candidate) => ({
       ...candidate,
-      is_paid: false,
       resolvedPhotoUrls: (candidate.photo_urls ?? [])
         .map((path: string) => urlByPath.get(path))
         .filter((url: string | undefined): url is string => Boolean(url)),

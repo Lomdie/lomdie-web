@@ -178,7 +178,7 @@ export async function submitDossierCandidature(
 
   const { data: existing } = await supabase
     .from("candidates")
-    .select("id, photo_urls, status")
+    .select("id, photo_urls, status, is_paid")
     .ilike("email", parsed.data.email)
     .maybeSingle();
 
@@ -215,8 +215,8 @@ export async function submitDossierCandidature(
 
   return {
     status: "success",
-    canBook: existing?.status === "payee",
-    message: existing?.status === "payee"
+    canBook: existing?.is_paid === true,
+    message: existing?.is_paid
       ? "Votre dossier a bien été reçu. La prise de rendez-vous est maintenant obligatoire pour finaliser votre candidature."
       : "Votre dossier a bien été reçu. Charlène l'examine et revient vers vous rapidement.",
   };
