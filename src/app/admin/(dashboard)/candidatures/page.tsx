@@ -56,8 +56,6 @@ interface CandidateRow {
   eligibility_score: number | null;
   meeting_notes: string | null;
   key_decisions: string | null;
-  airtable_status: string | null;
-  airtable_criteria_ids: string[] | null;
   resolvedPhotoUrls: string[];
   status: CandidateStatus;
   created_at: string;
@@ -97,7 +95,7 @@ async function getCandidates(filters: SearchParams, page: number) {
   let query = supabase
     .from("candidates")
     .select(
-      "id, first_name, last_name, email, phone, gender, birth_date, country, city, years_in_country, marital_status, children_count, tribe, religion, sensitive_data_consent, height_cm, occupation, single_duration, hobbies, personality, photo_urls, search_age_range, search_marital_status, search_max_children, search_height_range, search_tribe, search_religion, search_body_type, search_qualities, status, offer_tier, is_publicly_listed, motivation, admin_notes, created_at, application_date, eligibility_score, meeting_notes, key_decisions, airtable_status, airtable_criteria_ids",
+      "id, first_name, last_name, email, phone, gender, birth_date, country, city, years_in_country, marital_status, children_count, tribe, religion, sensitive_data_consent, height_cm, occupation, single_duration, hobbies, personality, photo_urls, search_age_range, search_marital_status, search_max_children, search_height_range, search_tribe, search_religion, search_body_type, search_qualities, status, offer_tier, is_publicly_listed, motivation, admin_notes, created_at, application_date, eligibility_score, meeting_notes, key_decisions",
       { count: "exact" }
     )
     .neq("status", "nouvelle_candidature")
@@ -247,7 +245,7 @@ export default async function AdminCandidaturesPage({
         </div>
       ) : (
         <div className="overflow-x-auto rounded-2xl border border-border/70 bg-card">
-          <Table>
+          <Table topScrollbar>
             <TableHeader>
               <TableRow>
                 <TableHead>Nom</TableHead>
@@ -283,8 +281,6 @@ export default async function AdminCandidaturesPage({
                 <TableHead>Note éligibilité AI</TableHead>
                 <TableHead>Meeting Notes</TableHead>
                 <TableHead>Key Decisions</TableHead>
-                <TableHead>Statut Airtable</TableHead>
-                <TableHead>Critères Airtable liés</TableHead>
                 <TableHead>Statut</TableHead>
                 <TableHead>Mise en relation</TableHead>
                 <TableHead>Date de candidature</TableHead>
@@ -292,7 +288,7 @@ export default async function AdminCandidaturesPage({
               </TableRow>
             </TableHeader>
             <TableBody>
-              <CreateCandidateInlineRow columnCount={39} />
+              <CreateCandidateInlineRow columnCount={37} />
               {candidates.map((candidate) => (
                 <CandidateInlineRow
                   key={candidate.id}

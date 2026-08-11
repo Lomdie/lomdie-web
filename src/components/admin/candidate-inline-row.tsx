@@ -33,7 +33,7 @@ interface Candidate {
   search_body_type: string | null; search_qualities: string | null; offer_tier: string | null;
   is_publicly_listed: boolean; motivation: string | null; admin_notes: string | null;
   eligibility_score: number | null; meeting_notes: string | null; key_decisions: string | null;
-  airtable_status: string | null; airtable_criteria_ids: string[] | null; status: CandidateStatus;
+  status: CandidateStatus;
   application_date: string; photo_urls: string[] | null; resolvedPhotoUrls: string[];
 }
 
@@ -245,8 +245,6 @@ export function CandidateInlineRow({ candidate, matches, candidateOptions }: { c
       <TableCell><InlineCell candidateId={candidate.id} field="eligibility_score" value={candidate.eligibility_score} label="Note éligibilité AI" type="number" /></TableCell>
       <TableCell><InlineCell candidateId={candidate.id} field="meeting_notes" value={candidate.meeting_notes} label="Meeting Notes" type="textarea" /></TableCell>
       <TableCell><InlineCell candidateId={candidate.id} field="key_decisions" value={candidate.key_decisions} label="Key Decisions" type="textarea" /></TableCell>
-      <TableCell><InlineCell candidateId={candidate.id} field="airtable_status" value={candidate.airtable_status} label="Statut historique" /></TableCell>
-      <TableCell><InlineCell candidateId={candidate.id} field="airtable_criteria_ids" value={candidate.airtable_criteria_ids} display={candidate.airtable_criteria_ids?.length ?? ""} label="Critères historiques liés" type="array" /></TableCell>
       <TableCell><InlineCell candidateId={candidate.id} field="status" value={candidate.status} display={<Badge variant="secondary">{candidateStatusLabels[candidate.status]}</Badge>} label="Statut" type="select" options={candidateStatuses.map((value) => ({ value, label: candidateStatusLabels[value] }))} /></TableCell>
       <TableCell><CandidateMatchCell candidateId={candidate.id} matches={matches} candidates={candidateOptions} /></TableCell>
       <TableCell><InlineCell candidateId={candidate.id} field="application_date" value={candidate.application_date.slice(0, 10)} display={new Date(candidate.application_date).toLocaleDateString("fr-FR")} label="Date de candidature" type="date" /></TableCell>

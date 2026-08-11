@@ -4,18 +4,65 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-function Table({ className, ...props }: React.ComponentProps<"table">) {
+function Table({
+  className,
+  topScrollbar = false,
+  ...props
+}: React.ComponentProps<"table"> & { topScrollbar?: boolean }) {
+  const topScrollRef = React.useRef<HTMLDivElement>(null)
+  const tableScrollRef = React.useRef<HTMLDivElement>(null)
+  const topScrollWidthRef = React.useRef<HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    if (!topScrollbar) return
+    const table = tableScrollRef.current?.querySelector("table")
+    const spacer = topScrollWidthRef.current
+    if (!table || !spacer) return
+
+    const updateWidth = () => {
+      spacer.style.width = `${table.scrollWidth}px`
+    }
+    updateWidth()
+    const observer = new ResizeObserver(updateWidth)
+    observer.observe(table)
+    return () => observer.disconnect()
+  }, [topScrollbar])
+
+  const syncScroll = (source: "top" | "table") => {
+    const top = topScrollRef.current
+    const table = tableScrollRef.current
+    if (!top || !table) return
+    if (source === "top" && table.scrollLeft !== top.scrollLeft) table.scrollLeft = top.scrollLeft
+    if (source === "table" && top.scrollLeft !== table.scrollLeft) top.scrollLeft = table.scrollLeft
+  }
+
   return (
-    <div
-      data-slot="table-container"
-      className="relative w-full overflow-x-auto"
-    >
-      <table
-        data-slot="table"
-        className={cn("w-full caption-bottom text-sm", className)}
-        {...props}
-      />
-    </div>
+    <>
+      {topScrollbar ? (
+        <div
+          ref={topScrollRef}
+          className="w-full overflow-x-auto overflow-y-hidden border-b border-border/70"
+          role="region"
+          tabIndex={0}
+          aria-label="Défilement horizontal du tableau"
+          onScroll={() => syncScroll("top")}
+        >
+          <div ref={topScrollWidthRef} className="h-1" />
+        </div>
+      ) : null}
+      <div
+        ref={tableScrollRef}
+        data-slot="table-container"
+        className="relative w-full overflow-x-auto"
+        onScroll={() => syncScroll("table")}
+      >
+        <table
+          data-slot="table"
+          className={cn("w-full caption-bottom text-sm", className)}
+          {...props}
+        />
+      </div>
+    </>
   )
 }
 

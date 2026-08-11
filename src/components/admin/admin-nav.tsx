@@ -11,6 +11,7 @@ import {
   HelpCircle,
   Tag,
   Newspaper,
+  Mail,
   UserCog,
   Users2,
   LogOut,
@@ -79,6 +80,12 @@ const navItems: NavItem[] = [
     label: "Blog",
     icon: Newspaper,
     hint: "Rédiger et publier des articles",
+  },
+  {
+    href: "/admin/newsletter",
+    label: "Newsletter",
+    icon: Mail,
+    hint: "Consulter les adresses e-mail collectées sur la homepage",
   },
   {
     href: "/admin/notre-equipe",

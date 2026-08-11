@@ -22,8 +22,7 @@ const editableCandidateFields = [
   "personality", "search_age_range", "search_marital_status", "search_max_children",
   "search_height_range", "search_tribe", "search_religion", "search_body_type",
   "search_qualities", "offer_tier", "is_publicly_listed", "motivation", "admin_notes",
-  "airtable_age", "eligibility_score", "meeting_notes", "key_decisions", "airtable_status",
-  "airtable_criteria_ids", "status", "application_date",
+  "airtable_age", "eligibility_score", "meeting_notes", "key_decisions", "status", "application_date",
 ] as const;
 
 const requiredTextFields = new Set(["first_name", "last_name", "phone"]);
@@ -31,7 +30,7 @@ const numberFields = new Set([
   "years_in_country", "children_count", "height_cm", "search_max_children", "airtable_age", "eligibility_score",
 ]);
 const booleanFields = new Set(["sensitive_data_consent", "is_publicly_listed"]);
-const arrayFields = new Set(["search_marital_status", "airtable_criteria_ids"]);
+const arrayFields = new Set(["search_marital_status"]);
 const MAX_PHOTO_SIZE = 8 * 1024 * 1024;
 const ALLOWED_PHOTO_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
