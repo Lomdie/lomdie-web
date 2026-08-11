@@ -29,7 +29,7 @@ const dossierSchema = z.object({
   searchHeightRange: z.string().trim().max(40).optional(),
   searchTribe: z.string().trim().max(120).optional(),
   searchReligion: z.string().trim().max(120).optional(),
-  searchBodyType: z.string().trim().max(120).optional(),
+  searchBodyType: z.array(z.enum(["mince", "moyenne", "athletique", "embonpoint"])).optional(),
   searchQualities: z.string().trim().max(2000).optional(),
   sensitiveDataConsent: z.literal(true, {
     message: "Le consentement pour vos données sensibles est requis",
@@ -40,6 +40,7 @@ export interface DossierFormState {
   status: "idle" | "success" | "error";
   message?: string;
   fieldErrors?: Record<string, string>;
+  canBook?: boolean;
 }
 
 const MAX_PHOTO_SIZE = 1.5 * 1024 * 1024;
@@ -101,7 +102,7 @@ export async function submitDossierCandidature(
     searchHeightRange: formData.get("searchHeightRange") || undefined,
     searchTribe: formData.get("searchTribe") || undefined,
     searchReligion: formData.get("searchReligion") || undefined,
-    searchBodyType: formData.get("searchBodyType") || undefined,
+    searchBodyType: formData.getAll("searchBodyType"),
     searchQualities: formData.get("searchQualities") || undefined,
     sensitiveDataConsent: formData.get("sensitiveDataConsent") === "on" ? true : undefined,
   });
@@ -171,14 +172,14 @@ export async function submitDossierCandidature(
     search_height_range: parsed.data.searchHeightRange || null,
     search_tribe: parsed.data.searchTribe || null,
     search_religion: parsed.data.searchReligion || null,
-    search_body_type: parsed.data.searchBodyType || null,
+    search_body_type: parsed.data.searchBodyType?.length ? parsed.data.searchBodyType : null,
     search_qualities: parsed.data.searchQualities || null,
   };
 
   const { data: existing } = await supabase
     .from("candidates")
-    .select("id, photo_urls, status")
-    .eq("email", parsed.data.email)
+    .select("id, photo_urls, status, is_paid")
+    .ilike("email", parsed.data.email)
     .maybeSingle();
 
   const mergedPhotoPaths = [...(existing?.photo_urls ?? []), ...photoPaths];
@@ -214,6 +215,9 @@ export async function submitDossierCandidature(
 
   return {
     status: "success",
-    message: "Votre dossier a bien été reçu. Charlène l'examine et revient vers vous rapidement.",
+    canBook: existing?.is_paid === true,
+    message: existing?.is_paid
+      ? "Votre dossier a bien été reçu. La prise de rendez-vous est maintenant obligatoire pour finaliser votre candidature."
+      : "Votre dossier a bien été reçu. Charlène l'examine et revient vers vous rapidement.",
   };
 }

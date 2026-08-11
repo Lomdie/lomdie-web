@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { AdminTopbar } from "@/components/admin/admin-topbar";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { createAuthedServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -29,15 +30,17 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex min-h-screen overflow-x-hidden bg-white">
-      <AdminSidebar userEmail={user.email ?? ""} />
+    <TooltipProvider delay={200}>
+      <div className="flex min-h-screen overflow-x-hidden bg-white">
+        <AdminSidebar userEmail={user.email ?? ""} />
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <AdminTopbar userEmail={user.email ?? ""} />
-        <main className="min-w-0 flex-1 overflow-x-hidden bg-white p-6 lg:p-10">
-          {children}
-        </main>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <AdminTopbar userEmail={user.email ?? ""} />
+          <main className="min-w-0 flex-1 overflow-x-hidden bg-white p-6 lg:p-10">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 }

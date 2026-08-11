@@ -13,6 +13,7 @@ const updateSchema = z.object({
   city: z.string().trim().max(120).optional(),
   occupation: z.string().trim().max(120).optional(),
   birthDate: z.string().trim().optional(),
+  isPaid: z.coerce.boolean(),
 });
 
 const editableCandidateFields = [
@@ -21,7 +22,7 @@ const editableCandidateFields = [
   "sensitive_data_consent", "height_cm", "occupation", "single_duration", "hobbies",
   "personality", "search_age_range", "search_marital_status", "search_max_children",
   "search_height_range", "search_tribe", "search_religion", "search_body_type",
-  "search_qualities", "offer_tier", "is_publicly_listed", "motivation", "admin_notes",
+  "search_qualities", "offer_tier", "is_publicly_listed", "is_paid", "motivation", "admin_notes",
   "airtable_age", "eligibility_score", "meeting_notes", "key_decisions", "status", "application_date",
 ] as const;
 
@@ -29,8 +30,8 @@ const requiredTextFields = new Set(["first_name", "last_name", "phone"]);
 const numberFields = new Set([
   "years_in_country", "children_count", "height_cm", "search_max_children", "airtable_age", "eligibility_score",
 ]);
-const booleanFields = new Set(["sensitive_data_consent", "is_publicly_listed"]);
-const arrayFields = new Set(["search_marital_status"]);
+const booleanFields = new Set(["sensitive_data_consent", "is_publicly_listed", "is_paid"]);
+const arrayFields = new Set(["search_marital_status", "search_body_type"]);
 const MAX_PHOTO_SIZE = 8 * 1024 * 1024;
 const ALLOWED_PHOTO_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
@@ -69,6 +70,9 @@ function normalizeInlineValue(field: (typeof editableCandidateFields)[number], r
     if (field === "search_marital_status" && values.some((value) => !["celibataire", "divorce", "veuf"].includes(value))) {
       throw new Error("Situation recherchée invalide.");
     }
+    if (field === "search_body_type" && values.some((value) => !["mince", "moyenne", "athletique", "embonpoint"].includes(value))) {
+      throw new Error("Carrure invalide.");
+    }
     return values;
   }
   const value = String(rawValue ?? "").trim();
@@ -79,7 +83,6 @@ function normalizeInlineValue(field: (typeof editableCandidateFields)[number], r
   if (field === "gender" && !["homme", "femme"].includes(value)) throw new Error("Genre invalide.");
   if (field === "marital_status" && value && !["celibataire", "divorce", "veuf"].includes(value)) throw new Error("Situation invalide.");
   if (field === "offer_tier" && value && !["reseau", "signature", "hunter"].includes(value)) throw new Error("Offre invalide.");
-  if (field === "search_body_type" && value && !["mince", "moyenne", "athletique", "embonpoint"].includes(value)) throw new Error("Carrure invalide.");
   if (field === "status" && !candidateStatuses.includes(value as (typeof candidateStatuses)[number])) throw new Error("Statut invalide.");
   return value || null;
 }
@@ -257,6 +260,7 @@ export async function updateCandidate(
     city: formData.get("city"),
     occupation: formData.get("occupation"),
     birthDate: formData.get("birthDate"),
+    isPaid: formData.get("isPaid") === "on",
   });
 
   if (!parsed.success) {
@@ -273,6 +277,7 @@ export async function updateCandidate(
       city: parsed.data.city || null,
       occupation: parsed.data.occupation || null,
       birth_date: parsed.data.birthDate || null,
+      is_paid: parsed.data.isPaid,
     })
     .eq("id", parsed.data.candidateId);
 

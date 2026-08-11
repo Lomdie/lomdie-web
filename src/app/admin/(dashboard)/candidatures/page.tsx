@@ -46,10 +46,11 @@ interface CandidateRow {
   search_height_range: string | null;
   search_tribe: string | null;
   search_religion: string | null;
-  search_body_type: string | null;
+  search_body_type: string[] | null;
   search_qualities: string | null;
   offer_tier: string | null;
   is_publicly_listed: boolean;
+  is_paid: boolean;
   motivation: string | null;
   admin_notes: string | null;
   application_date: string;
@@ -95,7 +96,7 @@ async function getCandidates(filters: SearchParams, page: number) {
   let query = supabase
     .from("candidates")
     .select(
-      "id, first_name, last_name, email, phone, gender, birth_date, country, city, years_in_country, marital_status, children_count, tribe, religion, sensitive_data_consent, height_cm, occupation, single_duration, hobbies, personality, photo_urls, search_age_range, search_marital_status, search_max_children, search_height_range, search_tribe, search_religion, search_body_type, search_qualities, status, offer_tier, is_publicly_listed, motivation, admin_notes, created_at, application_date, eligibility_score, meeting_notes, key_decisions",
+      "id, first_name, last_name, email, phone, gender, birth_date, country, city, years_in_country, marital_status, children_count, tribe, religion, sensitive_data_consent, height_cm, occupation, single_duration, hobbies, personality, photo_urls, search_age_range, search_marital_status, search_max_children, search_height_range, search_tribe, search_religion, search_body_type, search_qualities, status, offer_tier, is_publicly_listed, is_paid, motivation, admin_notes, created_at, application_date, eligibility_score, meeting_notes, key_decisions",
       { count: "exact" }
     )
     .neq("status", "nouvelle_candidature")
@@ -274,6 +275,7 @@ export default async function AdminCandidaturesPage({
                 <TableHead>Carrure recherchée</TableHead>
                 <TableHead>Qualités recherchées</TableHead>
                 <TableHead>Offre</TableHead>
+                <TableHead>Payé</TableHead>
                 <TableHead>Visible</TableHead>
                 <TableHead>Consentement sensible</TableHead>
                 <TableHead>Motivation</TableHead>
@@ -288,7 +290,7 @@ export default async function AdminCandidaturesPage({
               </TableRow>
             </TableHeader>
             <TableBody>
-              <CreateCandidateInlineRow columnCount={37} />
+              <CreateCandidateInlineRow columnCount={38} />
               {candidates.map((candidate) => (
                 <CandidateInlineRow
                   key={candidate.id}

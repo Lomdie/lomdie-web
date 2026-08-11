@@ -160,7 +160,7 @@ export default async function AdminCandidateDetailPage({ params }: PageProps) {
               <InfoRow label="Taille acceptée" value={candidate.search_height_range} />
               <InfoRow label="Tribu acceptée" value={candidate.search_tribe} />
               <InfoRow label="Religion acceptée" value={candidate.search_religion} />
-              <InfoRow label="Carrure souhaitée" value={candidate.search_body_type} />
+              <InfoRow label="Carrures souhaitées" value={(candidate.search_body_type as string[] | null)?.join(", ") ?? null} />
               {candidate.search_qualities && (
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                   {candidate.search_qualities}
@@ -219,6 +219,7 @@ export default async function AdminCandidateDetailPage({ params }: PageProps) {
             currentCity={candidate.city}
             currentOccupation={candidate.occupation}
             currentBirthDate={candidate.birth_date}
+            isPaid={candidate.is_paid}
           />
         </div>
       </div>

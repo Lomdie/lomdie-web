@@ -35,6 +35,7 @@ interface CandidateEditFormProps {
   currentCity: string | null;
   currentOccupation: string | null;
   currentBirthDate: string | null;
+  isPaid: boolean;
 }
 
 export function CandidateEditForm({
@@ -45,6 +46,7 @@ export function CandidateEditForm({
   currentCity,
   currentOccupation,
   currentBirthDate,
+  isPaid,
 }: CandidateEditFormProps) {
   const [state, formAction, isPending] = useActionState(
     updateCandidate,
@@ -93,6 +95,11 @@ export function CandidateEditForm({
           <Label htmlFor="occupation">Métier</Label>
           <Input id="occupation" name="occupation" defaultValue={currentOccupation ?? ""} />
         </div>
+      </div>
+
+      <div className="flex items-start gap-2">
+        <Checkbox id="isPaid" name="isPaid" defaultChecked={isPaid} />
+        <Label htmlFor="isPaid" className="font-normal">Paiement confirmé manuellement</Label>
       </div>
 
       <div className="flex items-start gap-2">

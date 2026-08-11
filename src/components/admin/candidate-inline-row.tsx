@@ -30,8 +30,8 @@ interface Candidate {
   single_duration: string | null; hobbies: string | null; personality: string | null;
   search_age_range: string | null; search_marital_status: string[] | null; search_max_children: number | null;
   search_height_range: string | null; search_tribe: string | null; search_religion: string | null;
-  search_body_type: string | null; search_qualities: string | null; offer_tier: string | null;
-  is_publicly_listed: boolean; motivation: string | null; admin_notes: string | null;
+  search_body_type: string[] | null; search_qualities: string | null; offer_tier: string | null;
+  is_publicly_listed: boolean; is_paid: boolean; motivation: string | null; admin_notes: string | null;
   eligibility_score: number | null; meeting_notes: string | null; key_decisions: string | null;
   status: CandidateStatus;
   application_date: string; photo_urls: string[] | null; resolvedPhotoUrls: string[];
@@ -235,9 +235,10 @@ export function CandidateInlineRow({ candidate, matches, candidateOptions }: { c
       <TableCell><InlineCell candidateId={candidate.id} field="search_height_range" value={candidate.search_height_range} label="Taille recherchée" /></TableCell>
       <TableCell><InlineCell candidateId={candidate.id} field="search_tribe" value={candidate.search_tribe} label="Tribu recherchée" /></TableCell>
       <TableCell><InlineCell candidateId={candidate.id} field="search_religion" value={candidate.search_religion} label="Religion recherchée" /></TableCell>
-      <TableCell><InlineCell candidateId={candidate.id} field="search_body_type" value={candidate.search_body_type} label="Carrure recherchée" type="select" options={[{ value: "mince", label: "Mince" }, { value: "moyenne", label: "Moyenne" }, { value: "athletique", label: "Athlétique" }, { value: "embonpoint", label: "Embonpoint" }]} /></TableCell>
+      <TableCell><InlineCell candidateId={candidate.id} field="search_body_type" value={candidate.search_body_type} label="Carrures recherchées" type="multiselect" options={[{ value: "mince", label: "Mince" }, { value: "moyenne", label: "Moyenne" }, { value: "athletique", label: "Athlétique" }, { value: "embonpoint", label: "Embonpoint" }]} /></TableCell>
       <TableCell><InlineCell candidateId={candidate.id} field="search_qualities" value={candidate.search_qualities} label="Qualités recherchées" type="textarea" /></TableCell>
       <TableCell><InlineCell candidateId={candidate.id} field="offer_tier" value={candidate.offer_tier} label="Offre" type="select" options={[{ value: "reseau", label: "Réseau" }, { value: "signature", label: "Signature" }, { value: "hunter", label: "Hunter" }]} /></TableCell>
+      <TableCell><InlineCell candidateId={candidate.id} field="is_paid" value={candidate.is_paid} display={candidate.is_paid ? "Oui" : "Non"} label="Payé" type="boolean" /></TableCell>
       <TableCell><InlineCell candidateId={candidate.id} field="is_publicly_listed" value={candidate.is_publicly_listed} display={candidate.is_publicly_listed ? "Oui" : "Non"} label="Visible" type="boolean" /></TableCell>
       <TableCell><InlineCell candidateId={candidate.id} field="sensitive_data_consent" value={candidate.sensitive_data_consent} display={candidate.sensitive_data_consent ? "Oui" : "Non"} label="Consentement sensible" type="boolean" /></TableCell>
       <TableCell><InlineCell candidateId={candidate.id} field="motivation" value={candidate.motivation} label="Motivation" type="textarea" /></TableCell>

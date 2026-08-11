@@ -1,17 +1,11 @@
-"use client";
-
-import { motion } from "motion/react";
 import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 export function HeroMotion({ children }: { children: ReactNode }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-    >
+    <div className="motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-4 motion-safe:duration-700">
       {children}
-    </motion.div>
+    </div>
   );
 }
 
@@ -23,13 +17,14 @@ export function HeroImageMotion({
   className?: string;
 }) {
   return (
-    <motion.div
-      className={className}
-      initial={{ opacity: 0, scale: 0.96 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.8, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+    <div
+      className={cn(
+        "motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-95 motion-safe:duration-700",
+        className
+      )}
+      style={{ animationDelay: "0.15s", animationFillMode: "both" }}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }

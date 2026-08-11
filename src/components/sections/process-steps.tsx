@@ -1,11 +1,10 @@
 import {
   ClipboardList,
   CreditCard,
+  PhoneCall,
   Video,
   Search,
-  FileText,
   HeartHandshake,
-  Coffee,
   Headphones,
   Sparkles,
   type LucideIcon,
@@ -28,31 +27,31 @@ const steps: Step[] = [
   },
   {
     number: 2,
+    title: "Appel téléphonique",
+    description:
+      "Nous échangeons avec vous par téléphone ou WhatsApp pour découvrir votre situation, vos attentes et répondre à vos premières questions.",
+    icon: PhoneCall,
+  },
+  {
+    number: 3,
     title: "Validation & paiement",
     description:
       "Votre profil est validé. Vous choisissez la formule qui vous correspond et effectuez votre paiement en toute sécurité.",
     icon: CreditCard,
   },
   {
-    number: 3,
+    number: 4,
     title: "Appel vidéo",
     description:
       "Nous planifions un appel vidéo avec vous afin de mieux vous connaître, comprendre vos attentes et vos valeurs.",
     icon: Video,
   },
   {
-    number: 4,
-    title: "Sélection personnalisée",
-    description:
-      "Nous sélectionnons pour vous des profils compatibles au sein de notre réseau selon des critères de compatibilité approfondis.",
-    icon: Search,
-  },
-  {
     number: 5,
-    title: "Présentation des profils",
+    title: "Sélection et présentation des profils",
     description:
-      "Nous vous présentons des profils sélectionnés, un à trois maximum, avec un résumé détaillé. Vous choisissez ceux que vous souhaitez rencontrer.",
-    icon: FileText,
+      "Nous sélectionnons des profils compatibles au sein de notre réseau, puis nous vous présentons les personnes qui correspondent le mieux à vos attentes.",
+    icon: Search,
   },
   {
     number: 6,
@@ -63,20 +62,13 @@ const steps: Step[] = [
   },
   {
     number: 7,
-    title: "Premier rendez-vous",
-    description:
-      "Vous faites votre rencontre. Nous restons disponibles avant et après pour recueillir vos retours.",
-    icon: Coffee,
-  },
-  {
-    number: 8,
     title: "Suivi personnalisé",
     description:
       "Nous assurons un suivi après chaque rencontre pour comprendre vos impressions et ajuster nos prochaines propositions si nécessaire.",
     icon: Headphones,
   },
   {
-    number: 9,
+    number: 8,
     title: "Vers une belle histoire",
     description:
       "Si une connexion mutuelle se confirme, nous continuons à vous accompagner pour construire une relation saine et épanouissante.",

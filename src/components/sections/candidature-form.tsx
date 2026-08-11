@@ -1,8 +1,8 @@
 "use client";
 
 import { useActionState } from "react";
+import dynamic from "next/dynamic";
 import { CheckCircle2 } from "lucide-react";
-import { CalEmbed } from "@/components/sections/cal-embed";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +17,10 @@ import {
 } from "@/lib/actions/candidature";
 
 const initialState: CandidatureFormState = { status: "idle" };
+const CalEmbed = dynamic(
+  () => import("@/components/sections/cal-embed").then((module) => module.CalEmbed),
+  { loading: () => <p className="py-10 text-center text-sm text-muted-foreground">Chargement du calendrier…</p> }
+);
 
 export function CandidatureForm({ calLink }: { calLink: string }) {
   const [state, formAction, isPending] = useActionState(

@@ -1,18 +1,7 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
 import { Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { SocialLinks } from "@/components/social-links";
 import { SiteLogo } from "@/components/site-logo";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 
 const navLinks = [
   { href: "/a-propos", label: "À propos" },
@@ -25,8 +14,6 @@ const navLinks = [
 ];
 
 export function SiteHeader() {
-  const [open, setOpen] = useState(false);
-
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur">
       <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-6">
@@ -46,42 +33,30 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-3 sm:gap-4">
           <SocialLinks className="gap-2 sm:gap-3" />
-          <Button render={<Link href="/espace-membre" />} size="sm" className="hidden sm:inline-flex">
+          <Link href="/espace-membre" className="hidden h-7 items-center justify-center rounded-lg bg-primary px-2.5 text-[0.8rem] font-medium text-primary-foreground transition-colors hover:bg-primary/80 sm:inline-flex">
             Espace membre
-          </Button>
+          </Link>
 
-          <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger
-              render={<Button variant="ghost" size="icon" className="lg:hidden" aria-label="Ouvrir le menu" />}
-            >
+          <details className="group relative lg:hidden">
+            <summary className="flex size-8 cursor-pointer list-none items-center justify-center rounded-lg hover:bg-muted" aria-label="Ouvrir le menu">
               <Menu className="h-5 w-5" />
-            </SheetTrigger>
-            <SheetContent side="right" className="w-72">
-              <SheetHeader>
-                <SheetTitle>
-                  <SiteLogo />
-                </SheetTitle>
-              </SheetHeader>
-              <nav className="flex flex-col gap-1 px-4">
+            </summary>
+            <nav className="absolute right-0 top-11 z-50 flex w-72 flex-col gap-1 rounded-xl border border-border/70 bg-background p-4 shadow-xl">
+              <div className="mb-3 border-b border-border/70 pb-3"><SiteLogo /></div>
                 {navLinks.map((link) => (
                   <Link
                     key={link.href}
                     href={link.href}
-                    onClick={() => setOpen(false)}
                     className="rounded-md px-3 py-3 text-base text-foreground/80 transition-colors hover:bg-accent hover:text-accent-foreground"
                   >
                     {link.label}
                   </Link>
                 ))}
-                <Button
-                  render={<Link href="/espace-membre" onClick={() => setOpen(false)} />}
-                  className="mt-4"
-                >
+                <Link href="/espace-membre" className="mt-4 inline-flex h-9 items-center justify-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary/80">
                   Espace membre
-                </Button>
-              </nav>
-            </SheetContent>
-          </Sheet>
+                </Link>
+            </nav>
+          </details>
         </div>
       </div>
     </header>

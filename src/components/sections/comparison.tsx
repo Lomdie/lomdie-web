@@ -75,7 +75,7 @@ export function Comparison() {
 
           <div className="relative hidden min-h-105 lg:block">
             <Image
-              src="/images/stock/couple-connection.jpg"
+              src="/images/stock/couple-connection.webp"
               alt="Couple partageant un moment de complicité"
               fill
               sizes="(min-width: 1280px) 34vw, 38vw"

@@ -2,8 +2,8 @@
 
 import { useActionState, useState } from "react";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { CheckCircle2 } from "lucide-react";
-import { CalEmbed } from "@/components/sections/cal-embed";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +17,10 @@ import {
 
 const initialState: DossierFormState = { status: "idle" };
 const MAX_UPLOADED_PHOTO_SIZE = 1.4 * 1024 * 1024;
+const CalEmbed = dynamic(
+  () => import("@/components/sections/cal-embed").then((module) => module.CalEmbed),
+  { loading: () => <p className="py-10 text-center text-sm text-muted-foreground">Chargement du calendrier…</p> }
+);
 
 async function optimizePhoto(file: File): Promise<File> {
   if (file.size <= MAX_UPLOADED_PHOTO_SIZE) return file;
@@ -152,9 +156,10 @@ export function DossierForm({ calLink = "" }: { calLink?: string }) {
         <CheckCircle2 className="mx-auto h-9 w-9 text-primary" strokeWidth={1.5} />
         <p className="mt-4 font-display text-xl">Dossier envoyé</p>
         <p className="mt-2 text-sm text-muted-foreground">{state.message}</p>
-        <p className="mt-3 font-medium">Choisissez maintenant votre rendez-vous.</p>
+        {state.canBook ? <p className="mt-3 font-medium">Choisissez maintenant votre rendez-vous pour finaliser votre candidature.</p> : null}
       </div>
-      {calLink ? <CalEmbed calLink={calLink} /> : <p className="text-center text-sm text-muted-foreground">Le calendrier est temporairement indisponible. Charlène vous contactera pour convenir d’un créneau.</p>}
+      {state.canBook && calLink ? <CalEmbed calLink={calLink} /> : null}
+      {state.canBook && !calLink ? <p className="text-center text-sm text-muted-foreground">Le calendrier est temporairement indisponible. Charlène vous contactera pour convenir d’un créneau.</p> : null}
     </div>;
   }
 
@@ -321,19 +326,20 @@ export function DossierForm({ calLink = "" }: { calLink?: string }) {
             <Input id="searchHeightRange" name="searchHeightRange" placeholder="Ex. 165-180 cm" />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="searchBodyType">Carrure physique souhaitée</Label>
-            <select
-              id="searchBodyType"
-              name="searchBodyType"
-              defaultValue=""
-              className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
-            >
-              <option value="">Peu importe</option>
-              <option value="mince">Mince</option>
-              <option value="moyenne">Moyenne</option>
-              <option value="athletique">Athlétique</option>
-              <option value="embonpoint">Embonpoint</option>
-            </select>
+            <Label>Carrures physiques souhaitées</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { value: "mince", label: "Mince" },
+                { value: "moyenne", label: "Moyenne" },
+                { value: "athletique", label: "Athlétique" },
+                { value: "embonpoint", label: "Embonpoint" },
+              ].map((option) => (
+                <div key={option.value} className="flex items-center gap-2">
+                  <Checkbox id={`search-body-${option.value}`} name="searchBodyType" value={option.value} />
+                  <Label htmlFor={`search-body-${option.value}`} className="font-normal">{option.label}</Label>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 

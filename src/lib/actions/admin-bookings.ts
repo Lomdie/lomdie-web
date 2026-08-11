@@ -29,6 +29,24 @@ export async function deleteBooking(formData: FormData) {
   revalidatePath("/admin/rendez-vous");
 }
 
+export async function deleteProspect(formData: FormData) {
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+
+  const authedSupabase = await createAuthedServerClient();
+  const { data: { user } } = await authedSupabase.auth.getUser();
+  if (!user) return;
+
+  const supabase = createServiceRoleClient();
+  await supabase
+    .from("candidates")
+    .delete()
+    .eq("id", id)
+    .eq("status", "nouvelle_candidature");
+  revalidatePath("/admin/rendez-vous");
+  revalidatePath("/admin");
+}
+
 export async function deleteAllProspects() {
   const authedSupabase = await createAuthedServerClient();
   const { data: { user } } = await authedSupabase.auth.getUser();

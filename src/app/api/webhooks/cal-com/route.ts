@@ -136,16 +136,18 @@ export async function POST(request: Request) {
     candidateStatus = candidate?.status ?? null;
   }
 
+  const resolvedBookingType = candidateStatus === "nouvelle_candidature"
+    ? "discovery"
+    : candidateId
+      ? "post_payment"
+      : bookingType(payload);
+
   const { error } = await supabase.from("calendly_bookings").upsert(
     {
       external_uid: externalUid,
       candidate_id: candidateId,
       title: payload.title ?? null,
-      booking_type: candidateStatus === "nouvelle_candidature"
-        ? "discovery"
-        : candidateId
-          ? "post_payment"
-          : bookingType(payload),
+      booking_type: resolvedBookingType,
       event_type_id: payload.eventTypeId ?? null,
       event_type_slug: payload.type ?? null,
       attendee_name: attendee?.name ?? null,
@@ -153,7 +155,7 @@ export async function POST(request: Request) {
       attendee_phone: attendee?.phoneNumber ?? attendee?.phone ?? null,
       scheduled_at: payload.startTime,
       end_at: payload.endTime ?? null,
-      meeting_link: meetingLink(payload),
+      meeting_link: resolvedBookingType === "discovery" ? null : meetingLink(payload),
       reschedule_link: payload.rescheduleUrl ?? null,
       cancellation_link: payload.cancellationUrl ?? payload.cancelUrl ?? null,
       notes: payload.additionalNotes ?? null,

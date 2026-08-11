@@ -6,6 +6,7 @@ import { updateBookingStatus } from "@/lib/actions/admin-bookings";
 import { HelpTooltip } from "@/components/admin/help-tooltip";
 import { DeleteBookingButton } from "@/components/admin/delete-booking-button";
 import { DeleteAllProspectsButton } from "@/components/admin/delete-all-prospects-button";
+import { DeleteProspectButton } from "@/components/admin/delete-prospect-button";
 
 export const metadata: Metadata = { title: "Prospects" };
 
@@ -222,7 +223,17 @@ export default async function AdminRendezVousPage({ searchParams }: { searchPara
                       </form>
                     )}
                   </td>
-                  <td className="p-4"><div className="flex flex-wrap gap-2">{row.meeting_link ? <a href={row.meeting_link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-2 hover:bg-secondary">Rejoindre <ExternalLink className="h-3.5 w-3.5" /></a> : null}{row.reschedule_link ? <a href={row.reschedule_link} target="_blank" rel="noreferrer" className="rounded-lg border border-border px-3 py-2 hover:bg-secondary">Reprogrammer</a> : null}{row.cancellation_link ? <a href={row.cancellation_link} target="_blank" rel="noreferrer" className="rounded-lg border border-border px-3 py-2 hover:bg-secondary">Annuler</a> : null}{row.status === "cancelled" ? <DeleteBookingButton id={row.id} /> : null}</div></td>
+                  <td className="p-4"><div className="flex flex-wrap gap-2">
+                    {row.isProspectOnly && row.candidate_id ? <DeleteProspectButton id={row.candidate_id} /> : null}
+                    {row.booking_type === "discovery" && (row.prospect?.phone ?? row.attendee_phone) ? <>
+                      <a href={`tel:${row.prospect?.phone ?? row.attendee_phone}`} className="rounded-lg border border-border px-3 py-2 hover:bg-secondary">Appeler</a>
+                      <a href={`https://wa.me/${(row.prospect?.phone ?? row.attendee_phone ?? "").replace(/\D/g, "")}`} target="_blank" rel="noreferrer" className="rounded-lg border border-border px-3 py-2 hover:bg-secondary">WhatsApp</a>
+                    </> : null}
+                    {row.booking_type !== "discovery" && row.meeting_link ? <a href={row.meeting_link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-2 hover:bg-secondary">Rejoindre <ExternalLink className="h-3.5 w-3.5" /></a> : null}
+                    {row.reschedule_link ? <a href={row.reschedule_link} target="_blank" rel="noreferrer" className="rounded-lg border border-border px-3 py-2 hover:bg-secondary">Reprogrammer</a> : null}
+                    {row.cancellation_link ? <a href={row.cancellation_link} target="_blank" rel="noreferrer" className="rounded-lg border border-border px-3 py-2 hover:bg-secondary">Annuler</a> : null}
+                    {row.status === "cancelled" ? <DeleteBookingButton id={row.id} /> : null}
+                  </div></td>
                 </tr>
               ))}
             </tbody>

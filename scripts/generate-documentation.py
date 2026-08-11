@@ -134,10 +134,10 @@ def team_guide() -> list:
             "Rechercher par nom, email ou téléphone.",
             "Filtrer par type de rendez-vous, statut et période.",
             "Voir les coordonnées et le message du prospect.",
-            "Rejoindre, reprogrammer ou annuler un rendez-vous lorsque Cal.com fournit le lien.",
+            "Appeler directement le prospect par téléphone ou WhatsApp, puis reprogrammer ou annuler le créneau si nécessaire.",
             "Supprimer les lignes de test uniquement après vérification.",
         ]),
-        P("Les réservations Cal.com sont rattachées automatiquement grâce à l'adresse email utilisée par le prospect.", "CalloutL"),
+        P("L'appel découverte est planifié dans Cal.com mais se déroule par téléphone ou WhatsApp, sans visioconférence. Les réservations sont rattachées automatiquement grâce à l'adresse email utilisée par le prospect.", "CalloutL"),
     ]) + [PageBreak()]
     s += section("04", "Candidatures détaillées", [
         P("Le tableau affiche les dossiers complets. Il est trié par défaut des candidatures les plus récentes aux plus anciennes."),
@@ -166,7 +166,7 @@ def team_guide() -> list:
     s += section("06", "Le lien unique après paiement", [
         P("Envoyez uniquement <b>https://lomdie.com/prendre-rendez-vous</b> après confirmation du paiement."),
         P("Sur cette page, le candidat complète d'abord le dossier détaillé. Après l'envoi réussi, le calendrier Cal.com s'affiche immédiatement afin qu'il réserve son créneau.", "CalloutL"),
-        P("La configuration Google Calendar et Google Meet dans Cal.com est gérée par Charlène. Pour obtenir un lien Google Meet plutôt qu'un lien Cal Video, l'événement Cal.com doit utiliser Google Meet comme lieu de réunion et le calendrier Google doit être connecté."),
+        P("La visioconférence concerne uniquement le rendez-vous après paiement. Sa configuration Google Calendar et Google Meet dans Cal.com est gérée par Charlène ; l'événement correspondant doit utiliser Google Meet comme lieu de réunion."),
     ]) + [PageBreak()]
     s += section("07", "Contenu, offres, blog et équipe", [
         table([
@@ -199,7 +199,8 @@ def team_guide() -> list:
             ["Mot de passe oublié", "Utiliser le lien de réinitialisation sur admin.lomdie.com."],
             ["Modification invisible", "Actualiser la page, confirmer l'enregistrement, puis signaler l'URL et l'heure du test."],
             ["Rendez-vous absent", "Vérifier l'adresse email utilisée et le statut du webhook Cal.com."],
-            ["Lien visio Cal Video", "Dans Cal.com, connecter Google Calendar et choisir Google Meet comme lieu de l'événement."],
+            ["Appel découverte", "Contacter le prospect par téléphone ou WhatsApp ; aucun lien de visioconférence n'est nécessaire."],
+            ["Visio après paiement", "Dans Cal.com, connecter Google Calendar et choisir Google Meet comme lieu de cet événement uniquement."],
             ["Incident technique", "Transmettre l'URL, l'heure, l'action effectuée et une capture sans données sensibles."],
         ], [52 * mm, 107 * mm]),
     ])
@@ -311,15 +312,6 @@ def technical_guide() -> list:
             ["Supabase", "Migrations appliquées, RLS actives, Storage conforme."],
             ["Observabilité", "Aucune erreur runtime nouvelle après déploiement."],
         ], [45 * mm, 114 * mm]),
-    ]) + [PageBreak()]
-    s += section("12", "Limites connues et prochaines étapes", [
-        *bullets([
-            "La page Newsletter collecte et liste les emails ; l'envoi de campagnes est volontairement hors périmètre actuel.",
-            "Google Calendar et Google Meet doivent être finalisés dans le compte Cal.com de Charlène.",
-            "Les accès admin sont complets ; ajouter des rôles avant d'ouvrir l'admin à des intervenants externes.",
-            "Conserver une procédure de retrait des anciens comptes et projets personnels après confirmation qu'aucun domaine ou secret n'en dépend.",
-            "Poursuivre les audits de performance, d'accessibilité et de protection des données sur la production réelle.",
-        ]),
     ])
     return s
 

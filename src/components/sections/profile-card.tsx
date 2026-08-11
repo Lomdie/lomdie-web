@@ -11,8 +11,8 @@ export interface PublicProfile {
 }
 
 const sentinelByGender = {
-  femme: "/images/stock/profile-sentinel-woman.png",
-  homme: "/images/stock/profile-sentinel-man.png",
+  femme: "/images/stock/profile-sentinel-woman.webp",
+  homme: "/images/stock/profile-sentinel-man.webp",
 };
 
 export function ProfileCard({ profile }: { profile: PublicProfile }) {
