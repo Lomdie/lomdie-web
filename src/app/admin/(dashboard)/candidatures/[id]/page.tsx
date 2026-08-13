@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowLeft, UserRound } from "lucide-react";
 import { createAuthedServerClient } from "@/lib/supabase/server";
 import { CandidateEditForm } from "@/components/admin/candidate-edit-form";
 import { HelpTooltip } from "@/components/admin/help-tooltip";
 import { PhotoDownloadButton } from "@/components/admin/photo-download-button";
+import { CandidatePhotoPreview } from "@/components/admin/candidate-photo-preview";
 
 export const metadata: Metadata = { title: "Détail candidature" };
 
@@ -30,17 +30,7 @@ async function getCandidate(id: string) {
 
   if (!data) return null;
 
-  let photoUrls: string[] = [];
-  if (data.photo_urls?.length) {
-    const { data: signed } = await supabase.storage
-      .from("candidate-photos")
-      .createSignedUrls(data.photo_urls, 60 * 30);
-    photoUrls = (signed ?? [])
-      .map((entry) => entry.signedUrl)
-      .filter((url): url is string => Boolean(url));
-  }
-
-  return { ...data, resolvedPhotoUrls: photoUrls };
+  return data;
 }
 
 function InfoRow({ label, value }: { label: string; value: string | number | null }) {
@@ -169,36 +159,33 @@ export default async function AdminCandidateDetailPage({ params }: PageProps) {
             </div>
           )}
 
-          {candidate.resolvedPhotoUrls.length > 0 && (
+          {candidate.photo_urls?.length > 0 && (
             <div className="rounded-2xl border border-border/70 bg-card p-6">
               <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-muted-foreground">
                 Photos (usage interne uniquement)
               </h2>
-              <div className="grid grid-cols-2 gap-3">
-                {candidate.resolvedPhotoUrls.map((url: string, index: number) => (
-                  <div
-                    key={url}
-                    className="group relative aspect-3/4 overflow-hidden rounded-lg bg-secondary/40"
-                  >
-                    <Image
-                      src={url}
-                      alt={`Photo ${index + 1} de ${candidate.first_name}`}
-                      fill
-                      sizes="200px"
-                      className="object-contain"
-                      unoptimized
-                    />
+              <div className="space-y-3">
+                <CandidatePhotoPreview
+                  paths={candidate.photo_urls}
+                  candidateName={`${candidate.first_name} ${candidate.last_name}`}
+                />
+                <div className="flex flex-wrap gap-2">
+                {candidate.photo_urls.map((path: string, index: number) => {
+                  const url = `/api/admin/candidate-photo?path=${encodeURIComponent(path)}&variant=original`;
+                  return (
                     <PhotoDownloadButton
+                      key={path}
                       url={url}
                       filename={`${candidate.first_name}-${candidate.last_name}-photo-${index + 1}.jpg`}
                     />
-                  </div>
-                ))}
+                  );
+                })}
+                </div>
               </div>
             </div>
           )}
 
-          {candidate.resolvedPhotoUrls.length === 0 && (
+          {!candidate.photo_urls?.length && (
             <div className="flex items-center gap-3 rounded-2xl border border-dashed border-border p-6 text-sm text-muted-foreground">
               <UserRound className="h-5 w-5 shrink-0" strokeWidth={1.5} />
               Aucune photo reçue. Le candidat peut les ajouter via son dossier

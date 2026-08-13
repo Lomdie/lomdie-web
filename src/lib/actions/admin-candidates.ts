@@ -4,6 +4,11 @@ import { revalidatePath, updateTag } from "next/cache";
 import { z } from "zod";
 import { createAuthedServerClient } from "@/lib/supabase/server";
 import { candidateStatuses } from "@/lib/candidate-status";
+import {
+  CANDIDATE_PHOTO_BUCKET,
+  candidateThumbnailPath,
+  createCandidateThumbnail,
+} from "@/lib/candidate-photo";
 
 const updateSchema = z.object({
   candidateId: z.string().uuid(),
@@ -182,9 +187,10 @@ export async function deleteCandidateInline(candidateId: string): Promise<Candid
   }
 
   if (candidate.photo_urls?.length) {
+    const storedPaths = candidate.photo_urls.flatMap((path: string) => [path, candidateThumbnailPath(path)]);
     const { error: storageError } = await supabase.storage
-      .from("candidate-photos")
-      .remove(candidate.photo_urls);
+      .from(CANDIDATE_PHOTO_BUCKET)
+      .remove(storedPaths);
     if (storageError) console.error("deleteCandidateInline: photo cleanup failed", storageError);
   }
 
@@ -210,13 +216,27 @@ export async function addCandidatePhoto(formData: FormData): Promise<CandidateMu
   const extension = photo.type === "image/jpeg" ? "jpg" : photo.type.split("/")[1];
   const path = `${parsedId.data}/${crypto.randomUUID()}.${extension}`;
   const { error: uploadError } = await supabase.storage
-    .from("candidate-photos").upload(path, photo, { contentType: photo.type });
+    .from(CANDIDATE_PHOTO_BUCKET).upload(path, photo, { contentType: photo.type });
   if (uploadError) return { ok: false, message: "L’envoi de la photo a échoué." };
+
+  try {
+    const thumbnail = await createCandidateThumbnail(await photo.arrayBuffer());
+    const { error: thumbnailError } = await supabase.storage
+      .from(CANDIDATE_PHOTO_BUCKET)
+      .upload(candidateThumbnailPath(path), thumbnail, {
+        contentType: "image/webp",
+        cacheControl: "31536000",
+        upsert: true,
+      });
+    if (thumbnailError) console.error("addCandidatePhoto: thumbnail upload failed", thumbnailError);
+  } catch (thumbnailError) {
+    console.error("addCandidatePhoto: thumbnail generation failed", thumbnailError);
+  }
 
   const { error } = await supabase.from("candidates")
     .update({ photo_urls: [...(candidate.photo_urls ?? []), path] }).eq("id", parsedId.data);
   if (error) {
-    await supabase.storage.from("candidate-photos").remove([path]);
+    await supabase.storage.from(CANDIDATE_PHOTO_BUCKET).remove([path, candidateThumbnailPath(path)]);
     return { ok: false, message: "La photo n’a pas pu être enregistrée." };
   }
   revalidatePath(`/admin/candidatures/${parsedId.data}`);
@@ -236,7 +256,9 @@ export async function removeCandidatePhoto(input: { candidateId: string; path: s
   const nextPaths = (candidate.photo_urls ?? []).filter((path: string) => path !== parsed.data.path);
   const { error } = await supabase.from("candidates").update({ photo_urls: nextPaths }).eq("id", parsed.data.candidateId);
   if (error) return { ok: false, message: "La suppression a échoué." };
-  const { error: storageError } = await supabase.storage.from("candidate-photos").remove([parsed.data.path]);
+  const { error: storageError } = await supabase.storage
+    .from(CANDIDATE_PHOTO_BUCKET)
+    .remove([parsed.data.path, candidateThumbnailPath(parsed.data.path)]);
   if (storageError) console.error("removeCandidatePhoto: storage cleanup failed", storageError);
   revalidatePath(`/admin/candidatures/${parsed.data.candidateId}`);
   revalidatePath("/admin/candidatures");

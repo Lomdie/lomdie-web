@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import {
   Dialog,
@@ -10,18 +11,42 @@ import {
 } from "@/components/ui/dialog";
 
 export function CandidatePhotoPreview({
-  urls,
+  paths,
   candidateName,
 }: {
-  urls: string[];
+  paths: string[];
   candidateName: string;
 }) {
-  if (urls.length === 0) return null;
+  if (paths.length === 0) return null;
 
   return (
     <div className="flex min-w-24 gap-1.5">
-      {urls.map((url, index) => (
-        <Dialog key={url}>
+      {paths.map((path, index) => (
+        <CandidatePhotoDialog key={path} path={path} index={index} candidateName={candidateName} />
+      ))}
+    </div>
+  );
+}
+
+function photoUrl(path: string, variant: "thumbnail" | "original") {
+  const params = new URLSearchParams({ path });
+  if (variant === "original") params.set("variant", "original");
+  return `/api/admin/candidate-photo?${params.toString()}`;
+}
+
+function CandidatePhotoDialog({
+  path,
+  index,
+  candidateName,
+}: {
+  path: string;
+  index: number;
+  candidateName: string;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+        <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger
             render={
               <button
@@ -31,7 +56,7 @@ export function CandidatePhotoPreview({
               />
             }
           >
-            <Image src={url} alt="" fill sizes="40px" className="object-cover" unoptimized />
+            <Image src={photoUrl(path, "thumbnail")} alt="" fill sizes="40px" className="object-cover" unoptimized />
           </DialogTrigger>
           <DialogContent className="max-w-3xl border-0 bg-transparent p-0 shadow-none">
             <DialogTitle className="sr-only">
@@ -40,19 +65,17 @@ export function CandidatePhotoPreview({
             <DialogDescription className="sr-only">
               Photo privée réservée à l’équipe Lomdie.
             </DialogDescription>
-            <div className="relative h-[80vh] w-full overflow-hidden rounded-xl bg-ink/95">
+            {open ? <div className="relative h-[80vh] w-full overflow-hidden rounded-xl bg-ink/95">
               <Image
-                src={url}
+                src={photoUrl(path, "original")}
                 alt={`Photo ${index + 1} de ${candidateName}`}
                 fill
                 sizes="90vw"
                 className="object-contain"
                 unoptimized
               />
-            </div>
+            </div> : null}
           </DialogContent>
         </Dialog>
-      ))}
-    </div>
   );
 }

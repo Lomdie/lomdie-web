@@ -34,7 +34,7 @@ interface Candidate {
   is_publicly_listed: boolean; is_paid: boolean; motivation: string | null; admin_notes: string | null;
   eligibility_score: number | null; meeting_notes: string | null; key_decisions: string | null;
   status: CandidateStatus;
-  application_date: string; photo_urls: string[] | null; resolvedPhotoUrls: string[];
+  application_date: string; photo_urls: string[] | null;
 }
 
 function InlinePhotos({ candidate }: { candidate: Candidate }) {
@@ -43,7 +43,7 @@ function InlinePhotos({ candidate }: { candidate: Candidate }) {
   const [message, setMessage] = useState("");
 
   return <div className="min-w-36 space-y-2">
-    <CandidatePhotoPreview urls={candidate.resolvedPhotoUrls} candidateName={`${candidate.first_name} ${candidate.last_name}`} />
+    <CandidatePhotoPreview paths={candidate.photo_urls ?? []} candidateName={`${candidate.first_name} ${candidate.last_name}`} />
     <div className="flex items-center gap-1">
       <label className="inline-flex cursor-pointer items-center gap-1 rounded-md border border-border px-2 py-1 text-xs hover:bg-secondary">
         <Upload className="h-3 w-3" /> Ajouter

@@ -3,6 +3,11 @@
 import { z } from "zod";
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { sendDossierConfirmationEmail } from "@/lib/email";
+import {
+  CANDIDATE_PHOTO_BUCKET,
+  candidateThumbnailPath,
+  createCandidateThumbnail,
+} from "@/lib/candidate-photo";
 
 const dossierSchema = z.object({
   firstName: z.string().trim().min(1, "Le prénom est requis"),
@@ -62,12 +67,26 @@ async function uploadPhoto(
   const path = `${crypto.randomUUID()}-${label}.${extension}`;
 
   const { error } = await supabase.storage
-    .from("candidate-photos")
+    .from(CANDIDATE_PHOTO_BUCKET)
     .upload(path, file, { contentType: file.type });
 
   if (error) {
     console.error("uploadPhoto failed", error);
     return { error: `L'envoi de la photo "${label}" a échoué.` };
+  }
+
+  try {
+    const thumbnail = await createCandidateThumbnail(await file.arrayBuffer());
+    const { error: thumbnailError } = await supabase.storage
+      .from(CANDIDATE_PHOTO_BUCKET)
+      .upload(candidateThumbnailPath(path), thumbnail, {
+        contentType: "image/webp",
+        cacheControl: "31536000",
+        upsert: true,
+      });
+    if (thumbnailError) console.error("uploadPhoto: thumbnail upload failed", thumbnailError);
+  } catch (thumbnailError) {
+    console.error("uploadPhoto: thumbnail generation failed", thumbnailError);
   }
 
   return { path };

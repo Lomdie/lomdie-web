@@ -57,7 +57,6 @@ interface CandidateRow {
   eligibility_score: number | null;
   meeting_notes: string | null;
   key_decisions: string | null;
-  resolvedPhotoUrls: string[];
   status: CandidateStatus;
   created_at: string;
 }
@@ -156,25 +155,7 @@ async function getCandidates(filters: SearchParams, page: number) {
   const from = (page - 1) * PAGE_SIZE;
   const { data, count } = await query.range(from, from + PAGE_SIZE - 1);
   const candidates = data ?? [];
-  const paths = candidates.flatMap((candidate) => candidate.photo_urls ?? []);
-  const urlByPath = new Map<string, string>();
-
-  if (paths.length > 0) {
-    const { data: signed } = await supabase.storage
-      .from("candidate-photos")
-      .createSignedUrls(paths, 60 * 30);
-    paths.forEach((path, index) => {
-      const signedUrl = signed?.[index]?.signedUrl;
-      if (signedUrl) urlByPath.set(path, signedUrl);
-    });
-  }
-
-  const rows = candidates.map((candidate) => ({
-      ...candidate,
-      resolvedPhotoUrls: (candidate.photo_urls ?? [])
-        .map((path: string) => urlByPath.get(path))
-        .filter((url: string | undefined): url is string => Boolean(url)),
-    })) as CandidateRow[];
+  const rows = candidates as CandidateRow[];
   const ids = rows.map((candidate) => candidate.id);
   const [matchesResult, optionsResult] = await Promise.all([
     ids.length > 0
