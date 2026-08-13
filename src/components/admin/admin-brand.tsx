@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import lomdieLogo from "../../../public/images/logo-lomdie-v3.png";
 
 export function AdminBrand({ compact = false, className }: { compact?: boolean; className?: string }) {
   if (compact) {
@@ -16,10 +17,11 @@ export function AdminBrand({ compact = false, className }: { compact?: boolean; 
 
   return (
     <Image
-      src="/images/logo-lomdie-v3.png"
+      src={lomdieLogo}
       alt="Lomdie — Rencontres de qualité"
       width={858}
       height={291}
+      unoptimized
       className={cn("h-auto w-32 object-contain", className)}
     />
   );
