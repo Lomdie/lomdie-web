@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Heart, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AdminNav } from "@/components/admin/admin-nav";
+import { AdminBrand } from "@/components/admin/admin-brand";
 
 const STORAGE_KEY = "lomdie-admin-sidebar-collapsed";
 
@@ -34,9 +35,8 @@ export function AdminSidebar({ userEmail }: { userEmail: string }) {
       )}
     >
       <div className="flex h-16 items-center gap-2 border-b border-border/70 px-5">
-        <Link href="/admin" className="flex items-center gap-2 overflow-hidden">
-          <Heart className="h-5 w-5 shrink-0 text-primary" strokeWidth={1.5} />
-          {!collapsed && <span className="font-display text-lg whitespace-nowrap">Lomdie</span>}
+        <Link href="/admin" className="flex items-center overflow-hidden" aria-label="Accueil de l’espace équipe Lomdie">
+          <AdminBrand compact={collapsed} />
         </Link>
       </div>
 

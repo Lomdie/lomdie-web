@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { requestPasswordReset, type RequestResetState } from "@/lib/actions/auth";
+import { AdminBrand } from "@/components/admin/admin-brand";
 
 const initialState: RequestResetState = { status: "idle" };
 
@@ -16,7 +16,7 @@ export function ForgotPasswordForm() {
   return (
     <div className="w-full max-w-sm">
       <div className="mb-8 flex flex-col items-center gap-2 text-center">
-        <Heart className="h-7 w-7 text-primary" strokeWidth={1.5} />
+        <AdminBrand compact />
         <h1 className="font-display text-2xl">Mot de passe oublié</h1>
         <p className="text-sm text-muted-foreground">
           Indiquez votre email, nous vous envoyons un lien de réinitialisation.

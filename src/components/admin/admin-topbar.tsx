@@ -2,19 +2,19 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Heart, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { AdminNav } from "@/components/admin/admin-nav";
+import { AdminBrand } from "@/components/admin/admin-brand";
 
 export function AdminTopbar({ userEmail }: { userEmail: string }) {
   const [open, setOpen] = useState(false);
 
   return (
     <header className="flex h-16 items-center justify-between border-b border-border/70 bg-card px-4 lg:hidden">
-      <Link href="/admin" className="flex items-center gap-2">
-        <Heart className="h-5 w-5 text-primary" strokeWidth={1.5} />
-        <span className="font-display text-lg">Lomdie</span>
+      <Link href="/admin" aria-label="Accueil de l’espace équipe Lomdie">
+        <AdminBrand className="w-28" />
       </Link>
 
       <div className="flex items-center gap-3">
@@ -32,9 +32,8 @@ export function AdminTopbar({ userEmail }: { userEmail: string }) {
           </Button>
           <SheetContent side="left" className="w-72 p-0">
             <SheetHeader className="border-b border-border/70">
-              <SheetTitle className="flex items-center gap-2">
-                <Heart className="h-5 w-5 text-primary" strokeWidth={1.5} />
-                Lomdie
+              <SheetTitle className="flex items-center">
+                <AdminBrand className="w-28" />
               </SheetTitle>
             </SheetHeader>
             <div onClick={() => setOpen(false)}>
