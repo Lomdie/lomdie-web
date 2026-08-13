@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { PhotoDownloadButton } from "@/components/admin/photo-download-button";
 
 export function CandidatePhotoPreview({
   paths,
@@ -46,12 +47,13 @@ function CandidatePhotoDialog({
   const [open, setOpen] = useState(false);
 
   return (
-        <Dialog open={open} onOpenChange={setOpen}>
+    <div className="group relative h-12 w-10 shrink-0">
+      <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger
             render={
               <button
                 type="button"
-                className="relative h-12 w-10 shrink-0 overflow-hidden rounded-md border border-border bg-secondary focus-visible:outline-2 focus-visible:outline-primary"
+                className="relative h-12 w-10 overflow-hidden rounded-md border border-border bg-secondary focus-visible:outline-2 focus-visible:outline-primary"
                 aria-label={`Agrandir la photo ${index + 1} de ${candidateName}`}
               />
             }
@@ -76,6 +78,12 @@ function CandidatePhotoDialog({
               />
             </div> : null}
           </DialogContent>
-        </Dialog>
+      </Dialog>
+      <PhotoDownloadButton
+        url={photoUrl(path, "original")}
+        filename={`${candidateName.replace(/\s+/g, "-").toLowerCase()}-photo-${index + 1}.jpg`}
+        className="right-0.5 top-0.5 h-6 w-6"
+      />
+    </div>
   );
 }
